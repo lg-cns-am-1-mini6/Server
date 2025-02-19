@@ -1,4 +1,4 @@
-package com.aminspire.global.response;
+package com.aminspire.global.common.response;
 
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.core.MethodParameter;

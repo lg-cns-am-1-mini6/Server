@@ -1,4 +1,4 @@
-package com.aminspire.global.response;
+package com.aminspire.global.common.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
