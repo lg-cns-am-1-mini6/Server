@@ -1,7 +1,7 @@
 package com.aminspire.global.exception;
 
 import com.aminspire.global.exception.errorcode.BaseErrorCode;
-import com.aminspire.global.response.CommonResponse;
+import com.aminspire.global.common.response.CommonResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
