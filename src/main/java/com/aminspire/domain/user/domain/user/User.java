@@ -29,10 +29,15 @@ public class User extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @Column(nullable = false, columnDefinition = "varchar(255)")
+    @Enumerated(EnumType.STRING)
+    private LoginType loginType;
+
     @Builder
-    public User(String email, String name, Role role) {
+    public User(String email, String name, Role role, LoginType loginType) {
         this.email = email;
         this.name = name;
         this.role = role;
+        this.loginType = loginType;
     }
 }

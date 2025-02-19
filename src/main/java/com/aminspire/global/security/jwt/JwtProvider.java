@@ -8,6 +8,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -41,6 +42,11 @@ public class JwtProvider {
                 .setExpiration(new Date(now.getTime() + accessTokenExpirationTime))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
+    }
+
+    public void createToken(User user, HttpServletResponse response) {
+        String accessToken = createAccessToken(user);
+        response.setHeader("accessToken", accessToken); // Access 토큰: 로컬 스토리지에 저장
     }
 
     public boolean validateToken(String token, String tokenType) {

@@ -6,7 +6,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/team6?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
     username: root
-    password: root
+    password: 1234
 
   jpa:
     database: mysql
@@ -17,13 +17,6 @@ spring:
     properties:
       hibernate:
         format_sql: true
-
-jwt:
-  secret: f445bc2dccb24c9f5b910182f4d3a8a675b2ea885a369d734243287f6acceba7e3e7b0f3ef80c35555715118a3b779c70dc13bd84fad683dbc1045826b2737ab
-  token:
-    access-expiration-time: 43200000    # 12시간
-    refresh-expiration-time: 604800000   # 7일
-
 logging:
   level:
     org.hibernate.SQL: debug
