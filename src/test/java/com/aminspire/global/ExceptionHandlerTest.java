@@ -4,6 +4,7 @@ import com.aminspire.global.exception.CommonException;
 import com.aminspire.global.exception.ErrorMsg;
 import com.aminspire.global.exception.GlobalExceptionHandler;
 import com.aminspire.global.exception.errorcode.ExampleErrorCode;
+import com.aminspire.global.response.CommonResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -45,14 +46,17 @@ public class ExceptionHandlerTest {
                 new CommonException(ExampleErrorCode.USER_NOT_FOUND);
 
         // when: 예외 핸들러 실행
-        ResponseEntity<ErrorMsg> response =
+        ResponseEntity<CommonResponse<ErrorMsg>> response =
                 globalExceptionHandler.handleCommonException(exception);
 
         // then: 응답 객체 검증
         assertThat(response).isNotNull();
         System.out.println(response);
+        assertThat(response).isInstanceOf(ResponseEntity.class);
+        assertThat(response.getBody()).isInstanceOf(CommonResponse.class);
         assertThat(response.getStatusCode()).isEqualTo(ExampleErrorCode.USER_NOT_FOUND.getHttpStatus());
-        assertThat(response.getBody().getCode()).isEqualTo(String.valueOf(ExampleErrorCode.USER_NOT_FOUND));
-        assertThat(response.getBody().getReason()).isEqualTo(ExampleErrorCode.USER_NOT_FOUND.getMessage());
+        assertThat(response.getBody().getStatus()).isEqualTo(ExampleErrorCode.USER_NOT_FOUND.getHttpStatus().value());
+        assertThat(response.getBody().getData().getCode()).isEqualTo(String.valueOf(ExampleErrorCode.USER_NOT_FOUND));
+        assertThat(response.getBody().getData().getReason()).isEqualTo(ExampleErrorCode.USER_NOT_FOUND.getMessage());
     }
 }
