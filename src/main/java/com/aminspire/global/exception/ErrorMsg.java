@@ -13,9 +13,5 @@ public class ErrorMsg {
     private String code;
     private String reason;
 
-    @Override
-    public String toString() {
-        return String.format("ErrorMsg{code='%s', reason='%s'}", code, reason);
-    }
 }
 
