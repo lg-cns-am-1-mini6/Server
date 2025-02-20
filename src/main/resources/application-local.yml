@@ -24,7 +24,14 @@ spring:
     properties:
       hibernate:
         format_sql: true
+<<<<<<< HEAD
 
+=======
+naver:
+  client:
+    id: 9ucoOTZoJ8hJGqmVleuX
+    secret: s2Wybm1i8N
+>>>>>>> 5d2f9df (feat: 네이버 뉴스 API 조회 구현)
 logging:
   level:
     org.hibernate.SQL: debug

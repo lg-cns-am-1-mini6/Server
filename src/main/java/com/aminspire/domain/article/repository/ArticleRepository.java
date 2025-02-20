@@ -6,6 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface ArticleRepository extends JpaRepository<Article, String> {
-    //List<Article> findByTitleContaining(String keyword); // 제목 검색 기능
+public interface ArticleRepository extends JpaRepository<Article, Long> {
 }
