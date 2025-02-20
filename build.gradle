@@ -48,6 +48,9 @@ dependencies {
     // Oauth2 Jose
     implementation 'org.springframework.security:spring-security-oauth2-jose'
 
+    // Oauth2 Client
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+
     //MySQL
     runtimeOnly 'com.mysql:mysql-connector-j'
 
