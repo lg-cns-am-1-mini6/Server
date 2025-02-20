@@ -5,3 +5,5 @@ spring:
       test: "test"
       local: "local"
     include:
+server:
+  port: 8080
