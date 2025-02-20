@@ -56,6 +56,7 @@ dependencies {
 
     //Redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'org.springframework.session:spring-session-data-redis'
 
     // S3
     implementation 'io.awspring.cloud:spring-cloud-starter-aws:2.4.4'
