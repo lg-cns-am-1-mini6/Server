@@ -1,10 +1,41 @@
 package com.aminspire.domain.article.controller;
-// 외부 요청을 처리하고 서비스 계층과 연결되는 역할
-// 뉴스 데이터를 조회하는 엔드포인트를 제공하고, 필요에 따라 요청 파라미터를 처리
+
+import java.util.List;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.aminspire.domain.article.dto.response.ArticleInfoResponse;
+import com.aminspire.domain.article.service.ArticleService;
+
+import lombok.RequiredArgsConstructor;
+
 @RestController
-@RequestMapping("/article")
+@CrossOrigin(origins = "*")  // 모든 도메인에서 접근 허용
+@RequestMapping("/articles")
+@RequiredArgsConstructor
 public class ArticleController {
+
+	private final ArticleService articleService;
+
+	/// 키워드 기반 기사 검색
+    @GetMapping("/search")
+    public ResponseEntity<List<ArticleInfoResponse>> searchArticles(
+            @RequestParam("keyword") String keyword, 
+            @RequestParam(value = "country", defaultValue = "kr,us") String country) {
+
+        return ResponseEntity.ok(articleService.searchArticles(keyword, country));
+    }
+
+	// 전체 기사 조회
+	@GetMapping("/searchAll")
+	public ResponseEntity<List<ArticleInfoResponse>> getAllArticles() {
+		// 모든 기사를 반환
+		List<ArticleInfoResponse> allArticles = articleService.getAllArticles();
+		return ResponseEntity.ok(allArticles);
+	}
 }
