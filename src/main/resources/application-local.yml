@@ -3,17 +3,10 @@ spring:
     activate:
       on-profile: "local"
   datasource:
-<<<<<<< HEAD
     driver-class-name: ${SPRING_DATASOURCE_DRIVER}
     url: ${LOCAL_SPRING_DATASOURCE_URL}
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
-=======
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/team6?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
-    username: team6_user
-    password: 1234
->>>>>>> 806c054 (feat: newsdata.io API 연동하여 기사 조회 기능 구현)
 
   jpa:
     database: mysql
@@ -24,14 +17,6 @@ spring:
     properties:
       hibernate:
         format_sql: true
-<<<<<<< HEAD
-
-=======
-naver:
-  client:
-    id: 9ucoOTZoJ8hJGqmVleuX
-    secret: s2Wybm1i8N
->>>>>>> 5d2f9df (feat: 네이버 뉴스 API 조회 구현)
 logging:
   level:
     org.hibernate.SQL: debug
