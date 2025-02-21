@@ -6,3 +6,4 @@ spring:
       local: "local"
     include:
       - redis
+      - security
