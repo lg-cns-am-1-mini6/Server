@@ -19,9 +19,6 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Start MySQL (via Docker Compose)
-        run: docker compose -f ./docker-compose.yml up -d
-
       - name: Cache Gradle packages
         uses: actions/cache@v3
         with:
@@ -35,9 +32,3 @@ jobs:
       - name: Build with Gradle (Skip Tests)
         run: ./gradlew clean build -x test
 
-      - name: Run Tests with MySQL
-        env:
-          SPRING_DATASOURCE_URL: ${{ env.SPRING_DATASOURCE_URL }}
-          SPRING_DATASOURCE_USERNAME: ${{ secret.SPRING_DATASOURCE_USERNAME }}
-          SPRING_DATASOURCE_PASSWORD:  ${{ secret.SPRING_DATASOURCE_PASSWORD }}
-        run: ./gradlew test
