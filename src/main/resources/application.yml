@@ -5,3 +5,4 @@ spring:
       test: "test"
       local: "local"
     include:
+      - redis
