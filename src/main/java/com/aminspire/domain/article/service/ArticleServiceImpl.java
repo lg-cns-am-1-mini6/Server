@@ -5,8 +5,10 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
@@ -17,8 +19,9 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.client.UnknownHttpStatusCodeException;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import com.aminspire.domain.article.domain.Article;
 import com.aminspire.domain.article.dto.response.ArticleInfoResponse;
-import com.aminspire.global.config.NaverConfig;
+import com.aminspire.domain.article.repository.ArticleRepository;
 import com.aminspire.global.exception.CommonException;
 import com.aminspire.global.exception.errorcode.NaverApiErrorCode;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -30,21 +33,23 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ArticleServiceImpl implements ArticleService {
 
-	private final RestTemplate restTemplate;
-	private final NaverConfig naverConfig;
-	private final ObjectMapper objectMapper;
+	@Value("${NAVER_API_ID}")
+	private String clientId;
+
+	@Value("${NAVER_API_SECRET}")
+	private String clientSecret;
 
 	@Autowired
-	public ArticleServiceImpl(RestTemplate restTemplate, NaverConfig naverConfig, ObjectMapper objectMapper) {
-		this.restTemplate = restTemplate;
-		this.naverConfig = naverConfig;
-		this.objectMapper = objectMapper;
-	}
+	private RestTemplate restTemplate;
+	
+	@Autowired
+	private ObjectMapper objectMapper;
+
+	@Autowired
+	private ArticleRepository articleRepository;
 
 	@Override
 	public List<ArticleInfoResponse.ArticleInfoItems> searchArticles(String query) {
-		String clientId = naverConfig.getId();
-		String clientSecret = naverConfig.getSecret();
 
 		String keyword = URLEncoder.encode(query, StandardCharsets.UTF_8);
 
@@ -87,4 +92,32 @@ public class ArticleServiceImpl implements ArticleService {
 			throw new CommonException(NaverApiErrorCode.NAVER_API_UNKNOWN_ERROR);
 		}
 	}
+
+	@Override
+	public boolean existsByLinkAndUserId(Long userId, String link) {
+		return articleRepository.existsByUserIdAndLink(userId, link);
+	}
+
+	@Override
+	public void scrapArticle(Article article) {
+		articleRepository.save(article);
+	}
+
+	@Override
+	public List<Article> getUserScraps(Long userId) {
+		return articleRepository.findByUserId(userId);
+	}
+
+	@Override
+	public void deleteScrap(Long userId, Long id) {
+		// 특정 유저의 스크랩된 기사만 삭제하도록 검증
+		Optional<Article> article = articleRepository.findByIdAndUserId(id, userId);
+
+		if (article.isPresent()) {
+			articleRepository.delete(article.get());
+		} else {
+			throw new IllegalArgumentException("해당 스크랩을 찾을 수 없습니다.");
+		}
+	}
+
 }

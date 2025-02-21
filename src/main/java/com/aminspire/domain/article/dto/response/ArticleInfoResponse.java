@@ -24,9 +24,6 @@ public class ArticleInfoResponse {
 		@JsonProperty("title")
 		private String title;
 
-		@JsonProperty("originallink")
-		private String originalLink;
-
 		@JsonProperty("link")
 		private String link;
 

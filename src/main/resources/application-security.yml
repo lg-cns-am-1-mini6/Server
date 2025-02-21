@@ -32,8 +32,8 @@ spring:
             authorization-grant-type: authorization_code
             redirect-uri: ${GOOGLE_REDIRECT_URI}
           kakao:
-            client_id: ${KAKAO_CLIENT_ID}
-            redirect_uri: ${KAKAO_REDIRECT_URI}
+            client-id: ${KAKAO_CLIENT_ID}
+            redirect-uri: ${KAKAO_REDIRECT_URI}
             authorization-grant-type: authorization_code
         provider:
           google:
