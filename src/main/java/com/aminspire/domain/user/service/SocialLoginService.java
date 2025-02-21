@@ -3,6 +3,7 @@ package com.aminspire.domain.user.service;
 import com.aminspire.domain.user.domain.user.LoginType;
 import com.aminspire.domain.user.domain.user.Role;
 import com.aminspire.domain.user.domain.user.User;
+import com.aminspire.domain.user.dto.response.LoginResponse;
 import com.aminspire.domain.user.repository.UserRepository;
 import com.aminspire.global.exception.CommonException;
 import com.aminspire.global.exception.errorcode.UserErrorCode;
@@ -37,7 +38,7 @@ public class SocialLoginService {
     private final KakaoClient kakaoClient;
 
     @Transactional
-    public void signInWithGoogle(String code, HttpServletResponse response) {
+    public LoginResponse signInWithGoogle(String code, HttpServletResponse response) {
 
         // 구글로 액세스 토큰 요청하기
         GoogleToken googleAccessToken;
@@ -61,10 +62,12 @@ public class SocialLoginService {
         }
 
         jwtProvider.createToken(user, response);
+
+        return LoginResponse.of("구글 로그인 성공");
     }
 
     @Transactional
-    public void signInWithKakao(String code, HttpServletResponse response) {
+    public LoginResponse signInWithKakao(String code, HttpServletResponse response) {
         // 카카오로 액세스 토큰 요청하기
         KakaoToken kakaoToken = kakaoClient.getAccessTokenFromKakao(code, kakaoRedirectUrl);
 
@@ -86,6 +89,8 @@ public class SocialLoginService {
         }
 
         jwtProvider.createToken(user, response);
+
+        return LoginResponse.of("카카오 로그인 성공");
     }
 
     @Transactional
