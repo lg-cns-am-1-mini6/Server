@@ -1,5 +1,6 @@
 package com.aminspire.domain.user.controller;
 
+import com.aminspire.domain.user.dto.response.LoginResponse;
 import com.aminspire.domain.user.service.SocialLoginService;
 import com.aminspire.global.common.response.CommonResponse;
 import jakarta.servlet.http.HttpServletResponse;
@@ -19,8 +20,12 @@ public class AuthController {
     private final SocialLoginService socialLoginService;
 
     @PostMapping("/google/sign-in")
-    public CommonResponse<?> signInWithGoogle(@RequestParam("code") String code, HttpServletResponse response) {
-        socialLoginService.signInWithGoogle(code, response);
-        return CommonResponse.onSuccess(200, "구글 로그인 성공");
+    public LoginResponse signInWithGoogle(@RequestParam("code") String code, HttpServletResponse response) {
+        return socialLoginService.signInWithGoogle(code, response);
+    }
+
+    @PostMapping("/kakao/sign-in")
+    public LoginResponse signInWithKakao(@RequestParam("code") String code, HttpServletResponse response) {
+        return socialLoginService.signInWithKakao(code, response);
     }
 }
