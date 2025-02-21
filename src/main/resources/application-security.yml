@@ -1,0 +1,62 @@
+spring:
+  config:
+    activate:
+      on-profile: "local"
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${MYSQL_HOST}:${MYSQL_PORT}/${DB_NAME}?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: ${MYSQL_USERNAME}
+    password: ${MYSQL_PASSWORD}
+
+  jpa:
+    database: mysql
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    show-sql: true
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        format_sql: true
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            authorization-grant-type: authorization_code
+            redirect-uri: ${GOOGLE_REDIRECT_URI}
+          kakao:
+            client_id: ${KAKAO_CLIENT_ID}
+            redirect_uri: ${KAKAO_REDIRECT_URI}
+            authorization-grant-type: authorization_code
+        provider:
+          google:
+            user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
+            token-uri: https://oauth2.googleapis.com/token
+            authorization-uri: https://accounts.google.com/o/oauth2/auth
+          kakao:
+            user-info-uri: https://kapi.kakao.com/v2/user/me
+            token-uri: https://kauth.kakao.com/oauth/token
+            authorization-uri: https://kauth.kakao.com/oauth/authorize
+      authorization server:
+        endpoint:
+          token-uri: https://oauth2.googleapis.com/token
+
+jwt:
+  secret: ${JWT_SECRET}
+  token:
+    access-expiration-time: 43200000    # 12시간
+    refresh-expiration-time: 604800000   # 7일
+naver:
+  client:
+    id: ${NAVER_API_ID}
+    secret: ${NAVER_API_SECRET}
+logging:
+  level:
+    org.hibernate.SQL: debug
