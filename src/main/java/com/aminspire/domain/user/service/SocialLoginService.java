@@ -10,6 +10,7 @@ import com.aminspire.global.security.jwt.JwtProvider;
 import com.aminspire.global.security.oauht2.google.GoogleClient;
 import com.aminspire.global.security.oauht2.google.dto.GoogleProfile;
 import com.aminspire.global.security.oauht2.google.dto.GoogleToken;
+import com.aminspire.infra.config.redis.RedisClient;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
