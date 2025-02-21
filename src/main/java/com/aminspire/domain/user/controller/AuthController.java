@@ -23,4 +23,10 @@ public class AuthController {
         socialLoginService.signInWithGoogle(code, response);
         return CommonResponse.onSuccess(200, "구글 로그인 성공");
     }
+
+    @PostMapping("/kakao/sign-in")
+    public CommonResponse<?> signInWithKakao(@RequestParam("code") String code, HttpServletResponse response) {
+        socialLoginService.signInWithKakao(code, response);
+        return CommonResponse.onSuccess(200, "카카오 로그인 성공");
+    }
 }
