@@ -3,13 +3,11 @@ package com.aminspire.domain.article.controller;
 import com.aminspire.domain.article.domain.Article;
 import com.aminspire.domain.article.dto.response.ArticleInfoResponse;
 import com.aminspire.domain.article.service.ArticleService;
-import java.util.Collections;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.aminspire.global.exception.CommonException;
-import com.aminspire.global.exception.errorcode.NaverApiErrorCode;
 import com.aminspire.infra.config.feign.NaverNewsFeignClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

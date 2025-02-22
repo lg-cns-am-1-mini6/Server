@@ -4,34 +4,16 @@ import com.aminspire.domain.article.domain.Article;
 import com.aminspire.domain.article.dto.response.ArticleInfoResponse;
 import com.aminspire.domain.article.repository.ArticleRepository;
 import com.aminspire.global.exception.CommonException;
-import com.aminspire.global.exception.errorcode.NaverApiErrorCode;
+import com.aminspire.global.exception.errorcode.NaverNewsErrorCode;
 import com.aminspire.infra.config.feign.NaverNewsFeignClient;
-import com.aminspire.infra.config.feign.NaverNewsFeignConfig;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.net.URI;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.Collections;
+
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.RequestEntity;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.HttpServerErrorException;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.client.UnknownHttpStatusCodeException;
-import org.springframework.web.util.UriComponentsBuilder;
 
 @Service
 @RequiredArgsConstructor
@@ -45,7 +27,7 @@ public class ArticleServiceImpl implements ArticleService {
     public List<ArticleInfoResponse.ArticleInfoItems> searchArticles(String query) {
         if (query == null || query.trim().isEmpty()) {
             log.warn("잘못된 요청: 검색어가 비어 있음");
-            throw new CommonException(NaverApiErrorCode.NAVER_API_CLIENT_ERROR);
+            throw new CommonException(NaverNewsErrorCode.NAVER_API_CLIENT_ERROR);
         }
 
         try {
@@ -55,8 +37,8 @@ public class ArticleServiceImpl implements ArticleService {
             List<ArticleInfoResponse.ArticleInfoItems> results = response.getItems();
 
             if (results.isEmpty()) {
-                log.info("검색 결과 없음 (204 No Content)");
-                throw new CommonException(NaverApiErrorCode.NAVER_API_EMPTY_RESPONSE);
+                log.info("검색 결과 없음");
+                throw new CommonException(NaverNewsErrorCode.NAVER_API_EMPTY_RESPONSE);
             }
 
             return results;
@@ -69,7 +51,7 @@ public class ArticleServiceImpl implements ArticleService {
         } catch (Exception e) {
             // 예상하지 못한 예외
             log.error("기사 검색 중 예기치 못한 오류 발생: {}", e.getMessage(), e);
-            throw new CommonException(NaverApiErrorCode.NAVER_API_UNKNOWN_ERROR);
+            throw new CommonException(NaverNewsErrorCode.NAVER_API_UNKNOWN_ERROR);
         }
     }
 
