@@ -1,27 +1,7 @@
 spring:
   config:
     activate:
-      on-profile: "local"
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://${MYSQL_HOST}:${MYSQL_PORT}/${DB_NAME}?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
-    username: ${MYSQL_USERNAME}
-    password: ${MYSQL_PASSWORD}
-
-  jpa:
-    database: mysql
-    database-platform: org.hibernate.dialect.MySQL8Dialect
-    show-sql: true
-    hibernate:
-      ddl-auto: create
-    properties:
-      hibernate:
-        format_sql: true
-  data:
-    redis:
-      host: ${REDIS_HOST}
-      port: ${REDIS_PORT}
-
+      on-profile: "security"
   security:
     oauth2:
       client:
@@ -47,16 +27,12 @@ spring:
       authorization server:
         endpoint:
           token-uri: https://oauth2.googleapis.com/token
-
 jwt:
   secret: ${JWT_SECRET}
   token:
-    access-expiration-time: 43200000    # 12시간
-    refresh-expiration-time: 604800000   # 7일
+    access-expiration-time: ${JWT_TOKEN_ACCESS_EXPIRATION_TIME}
+    refresh-expiration-time: ${JWT_TOKEN_REFRESH_EXPIRATION_TIME}
 naver:
   client:
     id: ${NAVER_API_ID}
     secret: ${NAVER_API_SECRET}
-logging:
-  level:
-    org.hibernate.SQL: debug
