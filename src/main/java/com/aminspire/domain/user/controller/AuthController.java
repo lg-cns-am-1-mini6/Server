@@ -2,7 +2,6 @@ package com.aminspire.domain.user.controller;
 
 import com.aminspire.domain.user.dto.response.LoginResponse;
 import com.aminspire.domain.user.service.SocialLoginService;
-import com.aminspire.global.common.response.CommonResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,12 +19,14 @@ public class AuthController {
     private final SocialLoginService socialLoginService;
 
     @PostMapping("/google/sign-in")
-    public LoginResponse signInWithGoogle(@RequestParam("code") String code, HttpServletResponse response) {
+    public LoginResponse signInWithGoogle(
+            @RequestParam("code") String code, HttpServletResponse response) {
         return socialLoginService.signInWithGoogle(code, response);
     }
 
     @PostMapping("/kakao/sign-in")
-    public LoginResponse signInWithKakao(@RequestParam("code") String code, HttpServletResponse response) {
+    public LoginResponse signInWithKakao(
+            @RequestParam("code") String code, HttpServletResponse response) {
         return socialLoginService.signInWithKakao(code, response);
     }
 }

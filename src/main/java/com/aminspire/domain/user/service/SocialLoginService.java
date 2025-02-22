@@ -14,7 +14,6 @@ import com.aminspire.global.security.oauht2.google.dto.GoogleToken;
 import com.aminspire.global.security.oauht2.kakao.KakaoClient;
 import com.aminspire.global.security.oauht2.kakao.dto.KakaoProfile;
 import com.aminspire.global.security.oauht2.kakao.dto.KakaoToken;
-import com.aminspire.infra.config.redis.RedisClient;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -54,8 +53,10 @@ public class SocialLoginService {
         }
 
         // bussiness logic: 사용자 정보가 이미 있다면 로그인 타입 확인 후 해당 사용자 정보를 반환하고, 없다면 새로운 사용자 정보를 생성하여 반환
-        User user = userRepository.findByEmail(email)
-                .orElseGet(() -> createUser(email, LoginType.GOOGLE));
+        User user =
+                userRepository
+                        .findByEmail(email)
+                        .orElseGet(() -> createUser(email, LoginType.GOOGLE));
 
         if (user.getLoginType() != LoginType.GOOGLE) {
             throw new CommonException(UserErrorCode.ALREADY_EXIST_USER);
@@ -81,8 +82,10 @@ public class SocialLoginService {
         }
 
         // bussiness logic: 사용자 정보가 이미 있다면 로그인 타입 확인 후 해당 사용자 정보를 반환하고, 없다면 새로운 사용자 정보를 생성하여 반환
-        User user = userRepository.findByEmail(email)
-                .orElseGet(() -> createUser(email, LoginType.KAKAO));
+        User user =
+                userRepository
+                        .findByEmail(email)
+                        .orElseGet(() -> createUser(email, LoginType.KAKAO));
 
         if (user.getLoginType() != LoginType.KAKAO) {
             throw new CommonException(UserErrorCode.ALREADY_EXIST_USER);
@@ -95,12 +98,13 @@ public class SocialLoginService {
 
     @Transactional
     public User createUser(String email, LoginType loginType) {
-        User user = User.builder()
-                .email(email)
-                .role(Role.ROLE_USER)
-                .name(null)
-                .loginType(loginType)
-                .build();
+        User user =
+                User.builder()
+                        .email(email)
+                        .role(Role.ROLE_USER)
+                        .name(null)
+                        .loginType(loginType)
+                        .build();
         return userRepository.save(user);
     }
 }
