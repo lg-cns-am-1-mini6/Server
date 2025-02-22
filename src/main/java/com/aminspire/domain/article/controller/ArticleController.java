@@ -3,10 +3,12 @@ package com.aminspire.domain.article.controller;
 import com.aminspire.domain.article.domain.Article;
 import com.aminspire.domain.article.dto.response.ArticleInfoResponse;
 import com.aminspire.domain.article.service.ArticleService;
-import java.util.Collections;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.aminspire.infra.config.feign.NaverNewsFeignClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -27,25 +29,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/articles")
 public class ArticleController {
     @Autowired private ArticleService articleService;
+    @Autowired private NaverNewsFeignClient naverNewsFeignClient;
 
     // 기사 검색
     @GetMapping("/search")
-    public ResponseEntity<List<ArticleInfoResponse.ArticleInfoItems>> searchArticles(
-            @RequestParam("query") String query) {
-        try {
-            List<ArticleInfoResponse.ArticleInfoItems> results =
-                    articleService.searchArticles(query);
+    public ResponseEntity<List<ArticleInfoResponse.ArticleInfoItems>> searchArticles(@RequestParam(value = "query", required = true) String query) {
+        List<ArticleInfoResponse.ArticleInfoItems> results = articleService.searchArticles(query);
 
-            if (results.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NO_CONTENT).build(); // 204
-            }
-
-            return ResponseEntity.ok(results); // 200
-        } catch (Exception e) {
-            log.error("기사 검색 중 오류 발생: {}", e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Collections.emptyList());
-        }
+        return ResponseEntity.ok(results); // 200 OK
     }
 
     // 스크랩 저장
@@ -57,10 +48,12 @@ public class ArticleController {
         // TODO: 유저 ID 받아오기 (임시 하드코딩, 실제 코드에서는 인증 객체에서 가져오기)
         Long userId = (long) 999;
 
+        // 400 처리?
+
         // 스크랩 중복 확인
         if (articleService.existsByLinkAndUserId(userId, articleInfoItems.getLink())) {
             result.put("message", "이미 스크랩된 기사입니다.");
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(result);
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(result); //409
         }
 
         // Article 객체로 변환
@@ -74,7 +67,7 @@ public class ArticleController {
         try {
             articleService.scrapArticle(article);
             result.put("message", "기사 스크랩 성공");
-            return ResponseEntity.status(HttpStatus.CREATED).body(result);
+            return ResponseEntity.status(HttpStatus.CREATED).body(result); //201
         } catch (Exception e) {
             log.error("기사 스크랩 실패: {}", e.getMessage(), e);
             result.put("message", "기사 스크랩 실패");
@@ -91,8 +84,10 @@ public class ArticleController {
         if (articles.isEmpty()) {
             Map<String, String> result = new HashMap<>();
             result.put("message", "스크랩한 기사가 없습니다.");
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(result);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(result); //204
         }
+
+        // 500 처리?
         return ResponseEntity.ok(articles);
     }
 
@@ -101,6 +96,8 @@ public class ArticleController {
     public ResponseEntity<Map<String, String>> deleteScrap(
             @PathVariable Long userId, @PathVariable Long id) throws Exception {
         Map<String, String> result = new HashMap<>();
+
+        //400 처리?
 
         try {
             articleService.deleteScrap(userId, id);
