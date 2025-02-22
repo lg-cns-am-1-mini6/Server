@@ -9,5 +9,4 @@ public class AmInspireApplication {
     public static void main(String[] args) {
         SpringApplication.run(AmInspireApplication.class, args);
     }
-
 }

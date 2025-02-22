@@ -12,7 +12,8 @@ import org.springframework.stereotype.Service;
 public class GoogleUserService extends DefaultOAuth2UserService {
 
     @Override
-    public OAuth2User loadUser(OAuth2UserRequest oAuth2UserRequest) throws OAuth2AuthenticationException {
+    public OAuth2User loadUser(OAuth2UserRequest oAuth2UserRequest)
+            throws OAuth2AuthenticationException {
         return null;
     }
 }

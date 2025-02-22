@@ -12,6 +12,4 @@ import lombok.NoArgsConstructor;
 public class ErrorMsg {
     private String code;
     private String reason;
-
 }
-

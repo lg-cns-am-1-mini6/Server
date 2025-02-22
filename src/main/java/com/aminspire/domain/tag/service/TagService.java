@@ -1,4 +1,3 @@
 package com.aminspire.domain.tag.service;
 
-public interface TagService {
-}
+public interface TagService {}

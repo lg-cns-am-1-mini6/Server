@@ -1,19 +1,17 @@
 package com.aminspire.domain.article.service;
 
-import java.util.List;
-
 import com.aminspire.domain.article.domain.Article;
 import com.aminspire.domain.article.dto.response.ArticleInfoResponse;
+import java.util.List;
 
 public interface ArticleService {
-	public List<ArticleInfoResponse.ArticleInfoItems> searchArticles(String query);
+    public List<ArticleInfoResponse.ArticleInfoItems> searchArticles(String query);
 
-	public boolean existsByLinkAndUserId(Long userId, String link);
-	
-	public void scrapArticle(Article article);
+    public boolean existsByLinkAndUserId(Long userId, String link);
 
-	public List<Article> getUserScraps(Long userId);
+    public void scrapArticle(Article article);
 
-	public void deleteScrap(Long userId, Long id);
+    public List<Article> getUserScraps(Long userId);
 
+    public void deleteScrap(Long userId, Long id);
 }

@@ -10,12 +10,8 @@ public record KakaoProfile(
         Long id,
         String connected_at,
         Properties properties,
-        KakaoAccount kakao_account
-) {
-    public record Properties(
-            String nickname
-    ) {
-    }
+        KakaoAccount kakao_account) {
+    public record Properties(String nickname) {}
 
     public record KakaoAccount(
             Boolean profile_nickname_needs_agreement,
@@ -27,12 +23,7 @@ public record KakaoProfile(
             String email,
             Boolean gender_needs_agreement,
             Boolean has_gender,
-            String gender
-    ) {
-        public record Profile(
-                String nickname,
-                Boolean is_default_nickname
-        ) {
-        }
+            String gender) {
+        public record Profile(String nickname, Boolean is_default_nickname) {}
     }
 }
