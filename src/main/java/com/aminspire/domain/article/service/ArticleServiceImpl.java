@@ -33,10 +33,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ArticleServiceImpl implements ArticleService {
 
-	@Value("${NAVER_API_ID}")
+	@Value("${NAVER_CLIENT_ID}")
 	private String clientId;
 
-	@Value("${NAVER_API_SECRET}")
+	@Value("${NAVER_CLIENT_SECRET}")
 	private String clientSecret;
 
 	@Autowired
