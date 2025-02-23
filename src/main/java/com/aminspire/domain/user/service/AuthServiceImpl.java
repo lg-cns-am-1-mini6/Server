@@ -1,6 +1,8 @@
 package com.aminspire.domain.user.service;
 
+import com.aminspire.domain.user.domain.user.User;
 import com.aminspire.domain.user.dto.response.TokenResponse;
+import com.aminspire.domain.user.repository.UserRepository;
 import com.aminspire.global.exception.CommonException;
 import com.aminspire.global.exception.errorcode.JwtErrorCode;
 import com.aminspire.global.security.jwt.JwtProvider;
@@ -20,6 +22,7 @@ public class AuthServiceImpl implements AuthService {
 
     private final JwtProvider jwtProvider;
     private final RedisClient redisClient;
+    private final UserRepository userRepository;
 
     @Override
     public TokenResponse recreate(HttpServletRequest request, HttpServletResponse response) {
@@ -50,5 +53,16 @@ public class AuthServiceImpl implements AuthService {
         jwtProvider.invalidateTokens(request, response);
 
         return TokenResponse.of("로그아웃 성공");
+    }
+
+    @Override
+    @Transactional
+    public TokenResponse deleteUser(User user, HttpServletRequest request, HttpServletResponse response) {
+
+        jwtProvider.invalidateTokens(request, response);
+
+        userRepository.delete(user);
+
+        return TokenResponse.of("사용자 탈퇴 성공");
     }
 }
