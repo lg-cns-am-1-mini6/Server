@@ -11,9 +11,9 @@ public interface ArticleService {
 
     public boolean existsByUserAndLink(User user, String link);
 
-    public void saveArticle(Long userId, ArticleInfoResponse.ArticleInfoItems articleInfoItems);
+    public void saveArticle(String token, ArticleInfoResponse.ArticleInfoItems articleInfoItems);
 
-    public List<Article> getArticlesByUser(Long userId);
+    public List<Article> getArticlesByUser(String token);
 
-    public void deleteScrap(Long userId, Long newsId);
+    public void deleteScrap(String token, Long newsId);
 }
