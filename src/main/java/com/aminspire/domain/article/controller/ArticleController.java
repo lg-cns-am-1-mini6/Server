@@ -52,28 +52,9 @@ public class ArticleController {
         Map<String, String> result = new HashMap<>();
 
         articleService.saveArticle(userId, articleInfoItems);
-        result.put("message", "기사 스크랩 성공");
+        result.put("message", "기사 스크랩 성공!");
 
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
-    }
-
-    // 특정 유저의 스크랩 삭제
-    @DeleteMapping("/scrap")
-    public ResponseEntity<Map<String, String>> deleteScrapArticle(
-            @RequestParam Long userId,
-            @RequestParam Long newsId) {
-        Map<String, String> result = new HashMap<>();
-
-        try {
-            articleService.deleteScrap(userId, newsId);
-            result.put("message", "기사 스크랩 삭제 성공");
-            return ResponseEntity.ok(result); // 200 OK
-        } catch (Exception e) {
-            log.error("기사 스크랩 삭제 실패: {}", e.getMessage(), e);
-            result.put("message", "기사 스크랩 삭제 실패");
-            result.put("description", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(result);
-        }
     }
 
     // 특정 유저의 스크랩 조회
@@ -86,4 +67,24 @@ public class ArticleController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
+
+    // 특정 유저의 스크랩 삭제
+    @DeleteMapping("/scrap")
+    public ResponseEntity<Map<String, String>> deleteScrapArticle(
+            @RequestParam Long userId,
+            @RequestParam Long newsId) {
+        Map<String, String> result = new HashMap<>();
+
+        try {
+            articleService.deleteScrap(userId, newsId);
+            result.put("message", "기사 스크랩 삭제 성공!");
+            return ResponseEntity.ok(result); // 200 OK
+        } catch (Exception e) {
+            log.error("기사 스크랩 삭제 실패: {}", e.getMessage(), e);
+            result.put("message", "기사 스크랩 삭제 실패");
+            result.put("description", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(result);
+        }
+    }
+
 }
