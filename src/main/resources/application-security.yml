@@ -32,8 +32,3 @@ jwt:
   token:
     access-expiration-time: ${JWT_TOKEN_ACCESS_EXPIRATION_TIME}
     refresh-expiration-time: ${JWT_TOKEN_REFRESH_EXPIRATION_TIME}
-naver:
-  client:
-    id: ${NAVER_CLIENT_ID}
-    secret: ${NAVER_CLIENT_SECRET}
-  url: ${NAVER_URL}

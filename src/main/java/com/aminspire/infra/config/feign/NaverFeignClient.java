@@ -5,8 +5,8 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@FeignClient(name = "naverNewsFeignClient", url = "${NAVER_URL}", configuration = NaverNewsFeignConfig.class)
-public interface NaverNewsFeignClient {
+@FeignClient(name = "naverFeignClient", url = "${NAVER_URL}", configuration = NaverFeignConfig.class)
+public interface NaverFeignClient {
 
     @GetMapping("/search/news.json")
     ArticleInfoResponse searchArticles(@RequestParam("query") String query);

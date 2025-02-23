@@ -7,11 +7,11 @@ import java.util.List;
 public interface ArticleService {
     public List<ArticleInfoResponse.ArticleInfoItems> searchArticles(String query);
 
-    public boolean existsByLinkAndUserId(Long userId, String link);
+    public boolean existsByUserIdAndLink(Long userId, String link);
 
-    public void scrapArticle(Article article);
+    public void saveArticle(Long userId, ArticleInfoResponse.ArticleInfoItems articleInfoItems);
 
-    public List<Article> getUserScraps(Long userId);
+    public List<Article> getArticlesByUser(Long userId);
 
-    public void deleteScrap(Long userId, Long id);
+    public void deleteScrap(Long userId, Long newsId);
 }

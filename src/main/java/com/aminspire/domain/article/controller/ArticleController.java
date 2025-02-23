@@ -8,7 +8,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.aminspire.infra.config.feign.NaverNewsFeignClient;
+import com.aminspire.domain.user.repository.UserRepository;
+import com.aminspire.global.exception.CommonException;
+import com.aminspire.infra.config.feign.NaverFeignClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,7 +18,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,8 +29,12 @@ import org.springframework.web.bind.annotation.RestController;
 @CrossOrigin(origins = {"http://localhost:3000", "http://localhost:5173", "http://localhost:8080"})
 @RequestMapping("/articles")
 public class ArticleController {
-    @Autowired private ArticleService articleService;
-    @Autowired private NaverNewsFeignClient naverNewsFeignClient;
+    @Autowired
+    private ArticleService articleService;
+    @Autowired
+    private NaverFeignClient naverFeignClient;
+    @Autowired
+    private UserRepository userRepository;
 
     // 기사 검색
     @GetMapping("/search")
@@ -39,74 +44,46 @@ public class ArticleController {
         return ResponseEntity.ok(results); // 200 OK
     }
 
-    // 스크랩 저장
+    // 특정 유저의 스크랩 저장
     @PostMapping("/scrap")
     public ResponseEntity<Map<String, String>> scrapArticle(
+            @RequestParam Long userId,
             @RequestBody ArticleInfoResponse.ArticleInfoItems articleInfoItems) throws Exception {
         Map<String, String> result = new HashMap<>();
 
-        // TODO: 유저 ID 받아오기 (임시 하드코딩, 실제 코드에서는 인증 객체에서 가져오기)
-        Long userId = (long) 999;
+        articleService.saveArticle(userId, articleInfoItems);
+        result.put("message", "기사 스크랩 성공");
 
-        // 400 처리?
-
-        // 스크랩 중복 확인
-        if (articleService.existsByLinkAndUserId(userId, articleInfoItems.getLink())) {
-            result.put("message", "이미 스크랩된 기사입니다.");
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(result); //409
-        }
-
-        // Article 객체로 변환
-        Article article = new Article();
-        article.setTitle(articleInfoItems.getTitle());
-        article.setLink(articleInfoItems.getLink());
-        article.setDescription(articleInfoItems.getDescription());
-        article.setPubDate(articleInfoItems.getPubDate());
-        article.setUserId(userId);
-
-        try {
-            articleService.scrapArticle(article);
-            result.put("message", "기사 스크랩 성공");
-            return ResponseEntity.status(HttpStatus.CREATED).body(result); //201
-        } catch (Exception e) {
-            log.error("기사 스크랩 실패: {}", e.getMessage(), e);
-            result.put("message", "기사 스크랩 실패");
-            result.put("description", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(result);
-        }
+        return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
 
-    // 스크랩 조회
-    @GetMapping("/users/{userId}/scraps")
-    public ResponseEntity<?> getUserScraps(@PathVariable Long userId) throws Exception {
-        List<Article> articles = articleService.getUserScraps(userId);
-
-        if (articles.isEmpty()) {
-            Map<String, String> result = new HashMap<>();
-            result.put("message", "스크랩한 기사가 없습니다.");
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(result); //204
-        }
-
-        // 500 처리?
-        return ResponseEntity.ok(articles);
-    }
-
-    // 스크랩 삭제
-    @DeleteMapping("/users/{userId}/scraps/{id}")
-    public ResponseEntity<Map<String, String>> deleteScrap(
-            @PathVariable Long userId, @PathVariable Long id) throws Exception {
+    // 특정 유저의 스크랩 삭제
+    @DeleteMapping("/scrap")
+    public ResponseEntity<Map<String, String>> deleteScrapArticle(
+            @RequestParam Long userId,
+            @RequestParam Long newsId) {
         Map<String, String> result = new HashMap<>();
 
-        //400 처리?
-
         try {
-            articleService.deleteScrap(userId, id);
-            result.put("message", "스크랩 삭제 성공");
-            return ResponseEntity.ok(result);
+            articleService.deleteScrap(userId, newsId);
+            result.put("message", "기사 스크랩 삭제 성공");
+            return ResponseEntity.ok(result); // 200 OK
         } catch (Exception e) {
-            result.put("message", "스크랩 삭제 실패");
+            log.error("기사 스크랩 삭제 실패: {}", e.getMessage(), e);
+            result.put("message", "기사 스크랩 삭제 실패");
             result.put("description", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(result);
+        }
+    }
+
+    // 특정 유저의 스크랩 조회
+    @GetMapping("/scrap")
+    public ResponseEntity<?> getScrapedArticles(@RequestParam Long userId) {
+        try {
+            List<Article> scrapedArticles = articleService.getArticlesByUser(userId);
+            return ResponseEntity.ok(scrapedArticles);
+        } catch (CommonException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
 }

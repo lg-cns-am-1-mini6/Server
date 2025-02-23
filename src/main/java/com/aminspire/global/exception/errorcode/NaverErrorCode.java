@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 @RequiredArgsConstructor
-public enum NaverNewsErrorCode implements BaseErrorCode {
+public enum NaverErrorCode implements BaseErrorCode {
     // 400 Bad Request: 잘못된 요청 (예: 쿼리 값 없음)
     NAVER_API_CLIENT_ERROR(HttpStatus.BAD_REQUEST, "잘못된 요청: 검색어가 비어 있습니다.", "NAVER_API_CLIENT_ERROR"),
 

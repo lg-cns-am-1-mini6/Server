@@ -8,4 +8,4 @@ spring:
     include:
       - redis
       - security
-
+      - feign
