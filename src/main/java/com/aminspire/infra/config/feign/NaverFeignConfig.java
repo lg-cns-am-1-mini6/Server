@@ -18,6 +18,8 @@ public class NaverFeignConfig {
     @Value("${NAVER_URL}")
     private String naverNewsUrl;  // 네이버 뉴스 API의 URL
 
+    private int displaySize = 100; // 데이터 가져오는 갯수. 최댓값 100
+
     @Bean
     public RequestInterceptor naverNewsRequestInterceptor() {
         return new RequestInterceptor() {
@@ -28,6 +30,7 @@ public class NaverFeignConfig {
                 // Naver 뉴스 API에 필요한 헤더 추가
                 template.header("X-Naver-Client-Id", clientId);
                 template.header("X-Naver-Client-Secret", clientSecret);
+                template.query("display", String.valueOf(displaySize));
             }
         };
     }
