@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 @Component
 @RequiredArgsConstructor
@@ -139,6 +140,15 @@ public class JwtProvider {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    // 헤더로부터 엑세스 토큰 추출
+    public String getAccessTokenFromRequest(HttpServletRequest request) {
+        String token = request.getHeader("Authorization");
+        if (StringUtils.hasText(token) && token.startsWith("Bearer ")) {
+            return token.substring(7);
+        }
+        return null;
     }
 
     // 쿠키로부터 리프레시 토큰 추출
