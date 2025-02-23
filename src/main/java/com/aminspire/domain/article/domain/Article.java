@@ -1,12 +1,8 @@
 package com.aminspire.domain.article.domain;
 
 import com.aminspire.domain.common.model.BaseTimeEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import com.aminspire.domain.user.domain.user.User;
+import jakarta.persistence.*;
 import lombok.*;
 
 @EqualsAndHashCode(callSuper = true)
@@ -35,7 +31,8 @@ public class Article extends BaseTimeEntity {
     @Column(name = "pub_date")
     private String pubDate;
 
-    // TODO 유저 ID
-    @Column(name = "user_id")
-    private Long userId;
+    // User와 ManyToOne 관계 설정 (user_id 외래키 추가)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false) // 외래키 이름: user_id
+    private User user;
 }
