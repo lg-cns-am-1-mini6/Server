@@ -4,14 +4,13 @@ import com.aminspire.domain.user.dto.response.LoginResponse;
 import com.aminspire.domain.user.dto.response.TokenResponse;
 import com.aminspire.domain.user.service.AuthService;
 import com.aminspire.domain.user.service.SocialLoginService;
+import com.aminspire.global.security.AuthDetails;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
@@ -42,5 +41,11 @@ public class AuthController {
     @PostMapping("/sign-out")
     public TokenResponse signOut(HttpServletRequest request, HttpServletResponse response) {
         return authService.signOut(request, response);
+    }
+
+    @DeleteMapping("/cancel")
+    public TokenResponse deleteUser(HttpServletRequest request, HttpServletResponse response,
+                                    @AuthenticationPrincipal AuthDetails authDetails) {
+        return authService.deleteUser(authDetails.user(), request, response);
     }
 }
