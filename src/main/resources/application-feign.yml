@@ -1,0 +1,9 @@
+spring:
+  config:
+    activate:
+      on-profile: "feign"
+  naver:
+    client:
+      id: ${NAVER_CLIENT_ID}
+      secret: ${NAVER_CLIENT_SECRET}
+    url: ${NAVER_URL}

@@ -26,12 +26,13 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.cors(Customizer.withDefaults())
-                .csrf(AbstractHttpConfigurer::disable);
+        http.cors(Customizer.withDefaults()).csrf(AbstractHttpConfigurer::disable);
 
-        http.sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));// Session 미사용
-        http.httpBasic(AbstractHttpConfigurer::disable)
-                .formLogin(AbstractHttpConfigurer::disable);
+        http.sessionManagement(
+                (session) ->
+                        session.sessionCreationPolicy(
+                                SessionCreationPolicy.STATELESS)); // Session 미사용
+        http.httpBasic(AbstractHttpConfigurer::disable).formLogin(AbstractHttpConfigurer::disable);
 
         http.authorizeHttpRequests((authorize) -> authorize
                         .requestMatchers( "/api-docs/**", "/swagger-ui/**", "/swagger-ui.html/**", "/v3/api-docs/**", "/swagger-ui/index.html#/**").permitAll()

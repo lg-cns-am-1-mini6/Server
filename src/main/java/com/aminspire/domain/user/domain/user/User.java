@@ -1,5 +1,6 @@
 package com.aminspire.domain.user.domain.user;
 
+import com.aminspire.domain.article.domain.Article;
 import com.aminspire.domain.common.model.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -7,6 +8,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLDelete;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -34,10 +38,14 @@ public class User extends BaseTimeEntity {
     private LoginType loginType;
 
     @Builder
-    public User(String email, String name, Role role, LoginType loginType) {
+    public User(String email, String name, Role role, LoginType loginType, String socialId) {
         this.email = email;
         this.name = name;
         this.role = role;
         this.loginType = loginType;
     }
+
+    // 유저가 작성한 기사 리스트
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Article> articles = new ArrayList<>();
 }

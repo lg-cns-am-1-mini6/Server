@@ -13,15 +13,14 @@ import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.security.Key;
+import java.util.Date;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
-
-import java.security.Key;
-import java.util.Date;
-import java.util.Objects;
 
 @Component
 @RequiredArgsConstructor
@@ -29,6 +28,7 @@ public class JwtProvider {
 
     @Value("${jwt.secret}")
     private String secretKey;
+
     private Key key;
 
     @Value("${jwt.token.access-expiration-time}")
@@ -72,7 +72,10 @@ public class JwtProvider {
         response.setHeader("accessToken", accessToken); // Access 토큰: 로컬 스토리지에 저장
 
         String refreshToken = createRefreshToken(user);
-        response.addHeader(HttpHeaders.SET_COOKIE, createResponseCookie("refreshToken", refreshToken).toString()); // Refresh 토큰: 쿠키에 저장
+        response.addHeader(
+                HttpHeaders.SET_COOKIE,
+                createResponseCookie("refreshToken", refreshToken)
+                        .toString()); // Refresh 토큰: 쿠키에 저장
 
         redisClient.setValue(user.getEmail(), refreshToken, 1000 * 60 * 60 * 24 * 7L); // Redis에 저장
     }
@@ -115,7 +118,7 @@ public class JwtProvider {
     public ResponseCookie createResponseCookie(String key, String value) {
 
         return ResponseCookie.from(key, value)
-                .maxAge(60*60*60)
+                .maxAge(60 * 60 * 60)
                 .secure(true)
                 .path("/")
                 .httpOnly(true)
@@ -125,10 +128,8 @@ public class JwtProvider {
 
     public boolean validateToken(String token, String tokenType) {
         try {
-            Jws<Claims> claims = Jwts.parserBuilder()
-                    .setSigningKey(key)
-                    .build()
-                    .parseClaimsJws(token);
+            Jws<Claims> claims =
+                    Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
 
             if (Objects.equals(tokenType, "refresh") && redisClient.checkExistsValue(token)) {
                 return false;
@@ -158,7 +159,12 @@ public class JwtProvider {
     }
 
     public String getEmail(String token) {
-        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getSubject();
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .getSubject();
     }
 
     public String getRole(String token) {

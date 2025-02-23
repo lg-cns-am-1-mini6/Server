@@ -4,6 +4,8 @@ spring:
     group:
       test: "test"
       local: "local"
+      docker: "docker"
     include:
       - redis
       - security
+      - feign
