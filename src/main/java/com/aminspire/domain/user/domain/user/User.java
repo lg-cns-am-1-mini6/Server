@@ -15,7 +15,6 @@ import java.util.List;
 
 @Entity
 @Getter
-@SQLDelete(sql = "UPDATE user SET deleted_at = NOW() where id = ?")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User extends BaseTimeEntity {
 
