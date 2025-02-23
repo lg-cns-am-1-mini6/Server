@@ -62,12 +62,6 @@ public class ArticleServiceImpl implements ArticleService {
         }
     }
 
-    // 특정 유저의 스크랩 중복 검증
-    @Override
-    public boolean existsByUserIdAndLink(Long userId, String link) {
-        return articleRepository.existsByUserIdAndLink(userId, link);
-    }
-
     // 로그인 유저 검증
     public User validateUser(Long userId) {
         // 요청한 userId로 User 정보 조회
@@ -79,6 +73,12 @@ public class ArticleServiceImpl implements ArticleService {
             throw new CommonException(UserErrorCode.USER_INVALID_ROLE); // USER_INVALID_ROLE 오류 추가
         }
         return user;
+    }
+
+    // 특정 유저의 스크랩 중복 검증
+    @Override
+    public boolean existsByUserIdAndLink(Long userId, String link) {
+        return articleRepository.existsByUserIdAndLink(userId, link);
     }
 
     // 특정 유저의 스크랩 저장
@@ -111,24 +111,6 @@ public class ArticleServiceImpl implements ArticleService {
         }
     }
 
-    // 특정 유저의 스크랩 삭제
-    @Override
-    public void deleteScrap(Long userId, Long newsId) {
-        // 공통 검증 메서드 호출
-        User user = validateUser(userId);
-
-        // 특정 유저의 스크랩된 기사만 삭제하도록 검증
-        Optional<Article> article = articleRepository.findByIdAndUserId(user.getId(), newsId);
-
-        if (article.isPresent()) {
-            articleRepository.delete(article.get());
-            log.info("기사 스크랩 삭제 성공: 유저 ID: {}, 기사 ID: {}", userId, newsId);
-        } else {
-            log.warn("삭제 실패: 해당 스크랩을 찾을 수 없습니다. 유저 ID: {}, 기사 ID: {}", userId, newsId);
-            throw new CommonException(ScrapErrorCode.SCRAP_NOT_FOUND);
-        }
-    }
-
     // 특정 유저의 스크랩 조회
     @Transactional(readOnly = true)
     public List<Article> getArticlesByUser(Long userId) {
@@ -145,6 +127,24 @@ public class ArticleServiceImpl implements ArticleService {
 
         log.info("유저 ID: {}의 스크랩된 기사 조회 성공", userId);
         return articles;
+    }
+
+    // 특정 유저의 스크랩 삭제
+    @Override
+    public void deleteScrap(Long userId, Long newsId) {
+        // 공통 검증 메서드 호출
+        User user = validateUser(userId);
+
+        // 특정 유저의 스크랩된 기사만 삭제하도록 검증
+        Optional<Article> article = articleRepository.findByIdAndUserId(user.getId(), newsId);
+
+        if (article.isPresent()) {
+            articleRepository.delete(article.get());
+            log.info("기사 스크랩 삭제 성공: 유저 ID: {}, 기사 ID: {}", userId, newsId);
+        } else {
+            log.warn("삭제 실패: 해당 스크랩을 찾을 수 없습니다. 유저 ID: {}, 기사 ID: {}", userId, newsId);
+            throw new CommonException(ScrapErrorCode.SCRAP_NOT_FOUND);
+        }
     }
 
 }

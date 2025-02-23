@@ -4,11 +4,13 @@ import com.aminspire.domain.article.domain.Article;
 import com.aminspire.domain.article.dto.response.ArticleInfoResponse;
 import com.aminspire.domain.article.service.ArticleService;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.aminspire.domain.user.repository.UserRepository;
+import com.aminspire.global.common.response.CommonResponse;
 import com.aminspire.global.exception.CommonException;
 import com.aminspire.infra.config.feign.NaverFeignClient;
 import lombok.extern.slf4j.Slf4j;
@@ -38,52 +40,40 @@ public class ArticleController {
 
     // 기사 검색
     @GetMapping("/search")
-    public ResponseEntity<List<ArticleInfoResponse.ArticleInfoItems>> searchArticles(@RequestParam(value = "query", required = true) String query) {
+    public CommonResponse<?> searchArticles(@RequestParam(value = "query", required = true) String query) {
         List<ArticleInfoResponse.ArticleInfoItems> results = articleService.searchArticles(query);
-
-        return ResponseEntity.ok(results); // 200 OK
+        return CommonResponse.onSuccess(HttpStatus.OK.value(), results); // 200 OK
     }
 
     // 특정 유저의 스크랩 저장
     @PostMapping("/scrap")
-    public ResponseEntity<Map<String, String>> scrapArticle(
+    public CommonResponse<Map<String, String>> scrapArticle(
             @RequestParam Long userId,
-            @RequestBody ArticleInfoResponse.ArticleInfoItems articleInfoItems) throws Exception {
+            @RequestBody ArticleInfoResponse.ArticleInfoItems articleInfoItems) {
         Map<String, String> result = new HashMap<>();
-
+        // 스크랩 기사 저장
         articleService.saveArticle(userId, articleInfoItems);
-        result.put("message", "기사 스크랩 성공");
+        result.put("message", "기사 스크랩 성공!");
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(result);
-    }
-
-    // 특정 유저의 스크랩 삭제
-    @DeleteMapping("/scrap")
-    public ResponseEntity<Map<String, String>> deleteScrapArticle(
-            @RequestParam Long userId,
-            @RequestParam Long newsId) {
-        Map<String, String> result = new HashMap<>();
-
-        try {
-            articleService.deleteScrap(userId, newsId);
-            result.put("message", "기사 스크랩 삭제 성공");
-            return ResponseEntity.ok(result); // 200 OK
-        } catch (Exception e) {
-            log.error("기사 스크랩 삭제 실패: {}", e.getMessage(), e);
-            result.put("message", "기사 스크랩 삭제 실패");
-            result.put("description", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(result);
-        }
+        return CommonResponse.onSuccess(HttpStatus.CREATED.value(), result); // 201 CREATED
     }
 
     // 특정 유저의 스크랩 조회
     @GetMapping("/scrap")
-    public ResponseEntity<?> getScrapedArticles(@RequestParam Long userId) {
-        try {
-            List<Article> scrapedArticles = articleService.getArticlesByUser(userId);
-            return ResponseEntity.ok(scrapedArticles);
-        } catch (CommonException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-        }
+    public CommonResponse<?> getScrapedArticles(@RequestParam Long userId) {
+        List<Article> scrapedArticles = articleService.getArticlesByUser(userId);
+        return CommonResponse.onSuccess(HttpStatus.OK.value(), scrapedArticles); // 200 OK
+    }
+
+    // 특정 유저의 스크랩 삭제
+    @DeleteMapping("/scrap")
+    public CommonResponse<Map<String, String>> deleteScrapArticle(
+            @RequestParam Long userId,
+            @RequestParam Long newsId) {
+        Map<String, String> result = new HashMap<>();
+
+        articleService.deleteScrap(userId, newsId);
+        result.put("message", "기사 스크랩 삭제 성공!");
+        return CommonResponse.onSuccess(HttpStatus.OK.value(), result); // 200 OK
     }
 }
