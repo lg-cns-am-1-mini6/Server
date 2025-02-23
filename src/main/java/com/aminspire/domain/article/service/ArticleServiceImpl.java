@@ -62,12 +62,6 @@ public class ArticleServiceImpl implements ArticleService {
         }
     }
 
-    // 특정 유저의 스크랩 중복 검증
-    @Override
-    public boolean existsByUserIdAndLink(Long userId, String link) {
-        return articleRepository.existsByUserIdAndLink(userId, link);
-    }
-
     // 로그인 유저 검증
     public User validateUser(Long userId) {
         // 요청한 userId로 User 정보 조회
@@ -79,6 +73,12 @@ public class ArticleServiceImpl implements ArticleService {
             throw new CommonException(UserErrorCode.USER_INVALID_ROLE); // USER_INVALID_ROLE 오류 추가
         }
         return user;
+    }
+
+    // 특정 유저의 스크랩 중복 검증
+    @Override
+    public boolean existsByUserIdAndLink(Long userId, String link) {
+        return articleRepository.existsByUserIdAndLink(userId, link);
     }
 
     // 특정 유저의 스크랩 저장
