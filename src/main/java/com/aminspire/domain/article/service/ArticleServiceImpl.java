@@ -63,9 +63,18 @@ public class ArticleServiceImpl implements ArticleService {
             throw new CommonException(NaverErrorCode.NAVER_API_UNKNOWN_ERROR);
         }
     }
-    
+    private String extractToken(String token) {
+        log.info("token :{}", token);
+        if (token != null && token.startsWith("Bearer ")) {
+            token = token.substring(7); // "Bearer " 부분 제거
+        }
+        return token != null ? token.trim() : token; // 앞뒤 공백 제거
+    }
+
     // 유저 검증
     public User validateUser(String token) {
+        log.info("token:{}", token);
+        token = extractToken(token);
         String email = jwtProvider.getEmail(token);
         log.info("유저 email: {} 의 스크랩 저장 시작", email);
 
