@@ -1,7 +1,10 @@
 package com.aminspire.domain.user.controller;
 
 import com.aminspire.domain.user.dto.response.LoginResponse;
+import com.aminspire.domain.user.dto.response.TokenResponse;
+import com.aminspire.domain.user.service.AuthService;
 import com.aminspire.domain.user.service.SocialLoginService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final SocialLoginService socialLoginService;
+    private final AuthService authService;
 
     @PostMapping("/google/sign-in")
     public LoginResponse signInWithGoogle(
@@ -28,5 +32,10 @@ public class AuthController {
     public LoginResponse signInWithKakao(
             @RequestParam("code") String code, HttpServletResponse response) {
         return socialLoginService.signInWithKakao(code, response);
+    }
+
+    @PostMapping("/reissue")
+    public TokenResponse reissue(HttpServletRequest request, HttpServletResponse response) {
+        return authService.recreate(request, response);
     }
 }

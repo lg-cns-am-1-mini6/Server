@@ -1,5 +1,6 @@
 package com.aminspire.global.security.jwt;
 
+import com.aminspire.domain.user.domain.user.Role;
 import com.aminspire.domain.user.domain.user.User;
 import com.aminspire.infra.config.redis.RedisClient;
 import io.jsonwebtoken.Claims;
@@ -9,6 +10,8 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.security.Key;
 import java.util.Date;
@@ -77,6 +80,41 @@ public class JwtProvider {
         redisClient.setValue(user.getEmail(), refreshToken, 1000 * 60 * 60 * 24 * 7L); // Redis에 저장
     }
 
+    public void recreate(String refreshToken, HttpServletResponse response) {
+        String email = getEmail(refreshToken);
+        String role = getRole(refreshToken);
+
+        String accessToken = recreateAccessToken(email, role);
+        response.setHeader("accessToken", accessToken);
+
+        refreshToken = recreateRefreshToken(email, role);
+        response.addHeader(HttpHeaders.SET_COOKIE, createResponseCookie("refreshToken", refreshToken).toString());
+
+        redisClient.setValue(email, refreshToken, 1000 * 60 * 60 * 24 * 7L);
+    }
+
+    public String recreateAccessToken(String email, String role) {
+        Date now = new Date();
+        return Jwts.builder()
+                .setSubject(email)
+                .claim("role", role)
+                .setIssuedAt(now)
+                .setExpiration(new Date(now.getTime() + accessTokenExpirationTime))
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    private String recreateRefreshToken(String email, String role) {
+        Date now = new Date();
+        return Jwts.builder()
+                .setSubject(email)
+                .claim("role", role)
+                .setIssuedAt(now)
+                .setExpiration(new Date(now.getTime() + refreshTokenExpirationTime))
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+    }
+
     public ResponseCookie createResponseCookie(String key, String value) {
 
         return ResponseCookie.from(key, value)
@@ -103,6 +141,23 @@ public class JwtProvider {
         }
     }
 
+    // 쿠키로부터 리프레시 토큰 추출
+    public String getRefreshTokenFromCookie(HttpServletRequest request) {
+
+        String refreshToken = null;
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+
+                if (cookie.getName().equals("refreshToken")) {
+                    refreshToken = cookie.getValue();
+                }
+            }
+        }
+
+        return refreshToken;
+    }
+
     public String getEmail(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(key)
@@ -110,5 +165,13 @@ public class JwtProvider {
                 .parseClaimsJws(token)
                 .getBody()
                 .getSubject();
+    }
+
+    public String getRole(String token) {
+        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().get("role", String.class);
+    }
+
+    public Long getExpirationTime(String token) {
+        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getExpiration().getTime();
     }
 }
