@@ -35,6 +35,10 @@ public class ArticleController {
             @RequestHeader("Authorization") String token,
             @RequestBody ArticleInfoResponse.ArticleInfoItems articleInfoItems) {
         Map<String, String> result = new HashMap<>();
+
+        if (token.split("\\.").length != 3) {
+            throw new IllegalArgumentException("유효하지 않은 JWT 토큰 형식입니다");
+        }
         // 스크랩 기사 저장
         articleService.saveArticle(token, articleInfoItems);
         result.put("message", "기사 스크랩 성공!");
@@ -46,6 +50,7 @@ public class ArticleController {
     @GetMapping("/scrap")
     public CommonResponse<?> getScrapedArticles(@RequestHeader("Authorization") String token) {
         List<Article> scrapedArticles = articleService.getArticlesByUser(token);
+
         return CommonResponse.onSuccess(HttpStatus.OK.value(), scrapedArticles); // 200 OK
     }
 
