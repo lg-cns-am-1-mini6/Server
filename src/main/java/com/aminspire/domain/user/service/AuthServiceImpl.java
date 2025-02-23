@@ -47,32 +47,7 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public TokenResponse signOut(HttpServletRequest request, HttpServletResponse response) {
 
-        String accessToken = jwtProvider.getAccessTokenFromRequest(request);
-        String refreshToken = jwtProvider.getRefreshTokenFromCookie(request);
-
-        if(refreshToken == null || accessToken == null){
-            throw new CommonException(JwtErrorCode.TOKEN_NOT_FOUND);
-        }
-
-        if (!jwtProvider.validateToken(accessToken, "access")) {
-            throw new CommonException(JwtErrorCode.ACCESS_TOKEN_INVALID);
-        }
-
-        if (!jwtProvider.validateToken(accessToken, "refresh")) {
-            throw new CommonException(JwtErrorCode.REFRESH_TOKEN_INVALID);
-        }
-
-        redisClient.deleteValue(jwtProvider.getEmail(accessToken));
-
-        ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", null)
-                .maxAge(0)
-                .secure(true)
-                .path("/")
-                .httpOnly(true)
-                .sameSite("Strict")
-                .build();
-
-        response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
+        jwtProvider.invalidateTokens(request, response);
 
         return TokenResponse.of("로그아웃 성공");
     }

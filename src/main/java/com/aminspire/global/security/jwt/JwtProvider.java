@@ -2,6 +2,8 @@ package com.aminspire.global.security.jwt;
 
 import com.aminspire.domain.user.domain.user.Role;
 import com.aminspire.domain.user.domain.user.User;
+import com.aminspire.global.exception.CommonException;
+import com.aminspire.global.exception.errorcode.JwtErrorCode;
 import com.aminspire.infra.config.redis.RedisClient;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
@@ -140,6 +142,36 @@ public class JwtProvider {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    public void invalidateTokens(HttpServletRequest request, HttpServletResponse response) {
+
+        String accessToken = getAccessTokenFromRequest(request);
+        String refreshToken = getRefreshTokenFromCookie(request);
+
+        if(refreshToken == null || accessToken == null){
+            throw new CommonException(JwtErrorCode.TOKEN_NOT_FOUND);
+        }
+
+        if (!validateToken(accessToken, "access")) {
+            throw new CommonException(JwtErrorCode.ACCESS_TOKEN_INVALID);
+        }
+
+        if (!validateToken(accessToken, "refresh")) {
+            throw new CommonException(JwtErrorCode.REFRESH_TOKEN_INVALID);
+        }
+
+        redisClient.deleteValue(getEmail(accessToken));
+
+        ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", null)
+                .maxAge(0)
+                .secure(true)
+                .path("/")
+                .httpOnly(true)
+                .sameSite("Strict")
+                .build();
+
+        response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
     }
 
     // 헤더로부터 엑세스 토큰 추출
