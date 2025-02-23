@@ -77,8 +77,8 @@ public class ArticleServiceImpl implements ArticleService {
 
     // 특정 유저의 스크랩 중복 검증
     @Override
-    public boolean existsByUserIdAndLink(Long userId, String link) {
-        return articleRepository.existsByUserIdAndLink(userId, link);
+    public boolean existsByUserAndLink(User user, String link) {
+        return articleRepository.existsByUserAndLink(user, link);
     }
 
     // 특정 유저의 스크랩 저장
@@ -89,7 +89,7 @@ public class ArticleServiceImpl implements ArticleService {
         User user = validateUser(userId);
 
         // 스크랩 중복 확인
-        if (existsByUserIdAndLink(user.getId(), articleInfoItems.getLink())) {
+        if (existsByUserAndLink(user, articleInfoItems.getLink())) {
             log.warn("중복 스크랩 시도: 유저 ID: {}, 기사 링크: {}", userId, articleInfoItems.getLink());
             throw new CommonException(ScrapErrorCode.SCRAP_DUPLICATE);
         }
@@ -136,7 +136,7 @@ public class ArticleServiceImpl implements ArticleService {
         User user = validateUser(userId);
 
         // 특정 유저의 스크랩된 기사만 삭제하도록 검증
-        Optional<Article> article = articleRepository.findByIdAndUserId(user.getId(), newsId);
+        Optional<Article> article = articleRepository.findByIdAndUser(newsId, user);
 
         if (article.isPresent()) {
             articleRepository.delete(article.get());
