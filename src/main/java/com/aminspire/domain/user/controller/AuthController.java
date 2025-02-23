@@ -38,4 +38,9 @@ public class AuthController {
     public TokenResponse reissue(HttpServletRequest request, HttpServletResponse response) {
         return authService.recreate(request, response);
     }
+
+    @PostMapping("/sign-out")
+    public TokenResponse signOut(HttpServletRequest request, HttpServletResponse response) {
+        return authService.signOut(request, response);
+    }
 }
