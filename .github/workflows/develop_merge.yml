@@ -6,7 +6,7 @@ on:
       - develop
 
 env:
-  DOCKERHUB_USERNAME: swp0927@gmail.com
+  DOCKERHUB_USERNAME: swp0927
   DOCKERHUB_IMAGE_NAME: newjeans-server
 
 jobs:
