@@ -5,6 +5,8 @@ import com.aminspire.global.exception.CommonException;
 import com.aminspire.global.exception.ErrorMsg;
 import com.aminspire.global.exception.ErrorResponse;
 import com.aminspire.global.exception.errorcode.JwtErrorCode;
+import com.aminspire.global.security.jwt.JwtFilter;
+import com.aminspire.global.security.jwt.JwtFilter.TokenInValidateException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -27,18 +29,18 @@ public class ExceptionFilter extends OncePerRequestFilter {
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try {
             filterChain.doFilter(request, response);
-        } catch (CommonException e) {
-            setResponse(response);
+        } catch (TokenInValidateException e) {
+            setResponse(response, e);
         }
     }
 
-    private void setResponse(HttpServletResponse response) throws IOException{
+    private void setResponse(HttpServletResponse response, Throwable e) throws IOException{
 
         response.setContentType("application/json;charset=UTF-8");
-        response.setStatus(JwtErrorCode.ACCESS_TOKEN_INVALID.getHttpStatus().value());
+        response.setStatus(JwtErrorCode.UNAUTHORIZED.getHttpStatus().value());
 
         CommonResponse<String> errorResponse = CommonResponse.onFailure(
-                JwtErrorCode.ACCESS_TOKEN_INVALID.getHttpStatus().value(), JwtErrorCode.ACCESS_TOKEN_INVALID.getMessage());
+                JwtErrorCode.UNAUTHORIZED.getHttpStatus().value(), e.getMessage());
         String errorJson = objectMapper.writeValueAsString(errorResponse);
 
         response.getWriter().write(errorJson);

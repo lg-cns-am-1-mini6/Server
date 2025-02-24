@@ -4,11 +4,9 @@ import com.aminspire.domain.user.domain.user.Role;
 import com.aminspire.domain.user.domain.user.User;
 import com.aminspire.global.exception.CommonException;
 import com.aminspire.global.exception.errorcode.JwtErrorCode;
+import com.aminspire.global.security.jwt.JwtFilter.TokenInValidateException;
 import com.aminspire.infra.config.redis.RedisClient;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
@@ -131,16 +129,25 @@ public class JwtProvider {
 
     public boolean validateToken(String token, String tokenType) {
         try {
-            Jws<Claims> claims =
-                    Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
+            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
 
             if (Objects.equals(tokenType, "refresh") && redisClient.checkExistsValue(token)) {
                 return false;
             }
 
-            return !claims.getBody().getExpiration().before(new Date());
-        } catch (Exception e) {
-            return false;
+            return true;
+            // return !claims.getBody().getExpiration().before(new Date());
+        } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
+            throw new TokenInValidateException("잘못된 JWT 서명입니다.", e);
+
+        } catch (ExpiredJwtException e) {
+            throw new TokenInValidateException("만료된 JWT 토큰입니다.", e);
+
+        } catch (UnsupportedJwtException e) {
+            throw new TokenInValidateException("지원되지 않는 JWT 토큰입니다.", e);
+
+        } catch (IllegalArgumentException e) {
+            throw new TokenInValidateException("JWT 토큰이 잘못되었습니다.", e);
         }
     }
 

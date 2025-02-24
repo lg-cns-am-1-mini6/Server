@@ -1,6 +1,7 @@
 package com.aminspire.global.security.jwt;
 
 import com.aminspire.global.security.AuthDetailsService;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -42,5 +43,16 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    public static class TokenInValidateException extends JwtException {
+
+        public TokenInValidateException(String message) {
+            super(message);
+        }
+
+        public TokenInValidateException(String message, Throwable cause) {
+            super(message, cause);
+        }
     }
 }
