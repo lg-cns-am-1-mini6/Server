@@ -1,11 +1,8 @@
 package com.aminspire.global.security.exception;
 
 import com.aminspire.global.common.response.CommonResponse;
-import com.aminspire.global.exception.CommonException;
 import com.aminspire.global.exception.ErrorMsg;
-import com.aminspire.global.exception.ErrorResponse;
 import com.aminspire.global.exception.errorcode.JwtErrorCode;
-import com.aminspire.global.security.jwt.JwtFilter;
 import com.aminspire.global.security.jwt.JwtFilter.TokenInValidateException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;

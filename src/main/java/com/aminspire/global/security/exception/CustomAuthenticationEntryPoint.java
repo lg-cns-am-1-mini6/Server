@@ -23,13 +23,13 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException {
 
         response.setContentType("application/json;charset=UTF-8");
-        response.setStatus(JwtErrorCode.UNAUTHORIZED.getHttpStatus().value());
+        response.setStatus(JwtErrorCode.FORBIDDEN.getHttpStatus().value());
 
         CommonResponse<ErrorMsg> errorResponse = CommonResponse.onFailure(
-                JwtErrorCode.UNAUTHORIZED.getHttpStatus().value(),
+                JwtErrorCode.FORBIDDEN.getHttpStatus().value(),
                 ErrorMsg.builder()
-                        .code(JwtErrorCode.UNAUTHORIZED.getCodeName())
-                        .reason(JwtErrorCode.UNAUTHORIZED.getMessage())
+                        .code(JwtErrorCode.FORBIDDEN.getCodeName())
+                        .reason(JwtErrorCode.FORBIDDEN.getMessage())
                         .build());
         String errorJson = objectMapper.writeValueAsString(errorResponse);
 
