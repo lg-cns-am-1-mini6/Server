@@ -37,7 +37,7 @@ public class SecurityConfig {
         http.sessionManagement(
                 (session) ->
                         session.sessionCreationPolicy(
-                                SessionCreationPolicy.STATELESS)); // Session 미사용
+                                SessionCreationPolicy.STATELESS));
         http.httpBasic(AbstractHttpConfigurer::disable).formLogin(AbstractHttpConfigurer::disable);
 
         http.exceptionHandling((exceptionHandling) ->
