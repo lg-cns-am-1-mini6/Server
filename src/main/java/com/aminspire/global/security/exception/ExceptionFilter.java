@@ -22,6 +22,7 @@ import java.io.IOException;
 public class ExceptionFilter extends OncePerRequestFilter {
 
     private final ObjectMapper objectMapper;
+
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try {
@@ -32,6 +33,7 @@ public class ExceptionFilter extends OncePerRequestFilter {
     }
 
     private void setResponse(HttpServletResponse response) throws IOException{
+
         response.setContentType("application/json;charset=UTF-8");
         response.setStatus(JwtErrorCode.ACCESS_TOKEN_INVALID.getHttpStatus().value());
 
