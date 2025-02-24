@@ -46,32 +46,20 @@ jobs:
           username: ${{ env.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_SECRET }}
 
-      - name: Extract metadata for Docker
-        id: metadata
-        uses: docker/metadata-action@v4
-        with:
-          images: ${{ env.DOCKERHUB_USERNAME }}/${{ env.DOCKERHUB_IMAGE_NAME }}
-          tags: |
-            type=sha,prefix=
-
       - name: Build and Push Docker image
         uses: docker/build-push-action@v4.1.1
         with:
           context: .
           push: true
-          tags: ${{ steps.metadata.outputs.tags }}
 
       - name: Deploy to EC2
         uses: appleboy/ssh-action@master
-        env:
-          IMAGE_FULL_URL: ${{ steps.metadata.outputs.tags }}
-          DOCKERHUB_IMAGE_NAME: ${{ env.DOCKERHUB_IMAGE_NAME }}
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          envs: IMAGE_FULL_URL, DOCKERHUB_IMAGE_NAME
           script: |
             sudo docker-compose down
+            sudo docker pull ${{ env.DOCKERHUB_USERNAME }}/kahlua-web
             sudo docker-compose up -d
             sudo docker image prune -f
