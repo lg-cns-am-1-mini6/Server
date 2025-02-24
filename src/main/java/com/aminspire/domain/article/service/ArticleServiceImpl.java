@@ -8,7 +8,6 @@ import com.aminspire.domain.user.repository.UserRepository;
 import com.aminspire.global.exception.CommonException;
 import com.aminspire.global.exception.errorcode.NaverErrorCode;
 import com.aminspire.global.exception.errorcode.ScrapErrorCode;
-import com.aminspire.global.exception.errorcode.UserErrorCode;
 import com.aminspire.global.security.jwt.JwtProvider;
 import com.aminspire.infra.config.feign.NaverFeignClient;
 
@@ -63,29 +62,6 @@ public class ArticleServiceImpl implements ArticleService {
             throw new CommonException(NaverErrorCode.NAVER_API_UNKNOWN_ERROR);
         }
     }
-    private String extractToken(String token) {
-        log.info("token :{}", token);
-        if (token != null && token.startsWith("Bearer ")) {
-            token = token.substring(7); // "Bearer " 부분 제거
-        }
-        return token != null ? token.trim() : token; // 앞뒤 공백 제거
-    }
-
-    // 유저 검증
-    public User validateUser(String token) {
-        log.info("token:{}", token);
-        token = extractToken(token);
-        String email = jwtProvider.getEmail(token);
-        log.info("유저 email: {} 의 스크랩 저장 시작", email);
-
-        // email이 null인 경우 예외를 던짐
-        if (email == null) {
-            throw new CommonException(UserErrorCode.USER_UNAUTHORIZED);
-        }
-
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new CommonException(UserErrorCode.USER_NOT_FOUND));
-    }
 
     // 특정 유저의 스크랩 중복 검증
     @Override
@@ -95,10 +71,7 @@ public class ArticleServiceImpl implements ArticleService {
 
     // 특정 유저의 스크랩 저장
     @Transactional
-    public void saveArticle(String token, ArticleInfoResponse.ArticleInfoItems articleInfoItems) {
-        // 공통 검증 메서드 호출
-        User user = validateUser(token);
-
+    public void saveArticle(User user, ArticleInfoResponse.ArticleInfoItems articleInfoItems) {
         // 스크랩 중복 확인
         if (existsByUserAndLink(user, articleInfoItems.getLink())) {
             log.warn("중복 스크랩 시도: 유저 ID: {}, 기사 링크: {}", user.getId(), articleInfoItems.getLink());
@@ -124,10 +97,7 @@ public class ArticleServiceImpl implements ArticleService {
 
     // 특정 유저의 스크랩 조회
     @Transactional(readOnly = true)
-    public List<Article> getArticlesByUser(String token) {
-        // 유저 정보 조회 및 로그인 검증
-        User user = validateUser(token);
-
+    public List<Article> getArticlesByUser(User user) {
         // 해당 유저가 스크랩한 기사 조회
         List<Article> articles = articleRepository.findByUser(user);
 
@@ -142,10 +112,7 @@ public class ArticleServiceImpl implements ArticleService {
 
     // 특정 유저의 스크랩 삭제
     @Override
-    public void deleteScrap(String token, Long newsId) {
-        // 공통 검증 메서드 호출
-        User user = validateUser(token);
-
+    public void deleteScrap(User user, Long newsId) {
         // 특정 유저의 스크랩된 기사만 삭제하도록 검증
         Optional<Article> article = articleRepository.findByIdAndUser(newsId, user);
 
