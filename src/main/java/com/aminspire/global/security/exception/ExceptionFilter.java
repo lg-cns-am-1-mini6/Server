@@ -39,8 +39,12 @@ public class ExceptionFilter extends OncePerRequestFilter {
         response.setContentType("application/json;charset=UTF-8");
         response.setStatus(JwtErrorCode.UNAUTHORIZED.getHttpStatus().value());
 
-        CommonResponse<String> errorResponse = CommonResponse.onFailure(
-                JwtErrorCode.UNAUTHORIZED.getHttpStatus().value(), e.getMessage());
+        CommonResponse<ErrorMsg> errorResponse = CommonResponse.onFailure(
+                JwtErrorCode.UNAUTHORIZED.getHttpStatus().value(),
+                ErrorMsg.builder()
+                        .code(JwtErrorCode.UNAUTHORIZED.getCodeName())
+                        .reason(e.getMessage())
+                        .build());
         String errorJson = objectMapper.writeValueAsString(errorResponse);
 
         response.getWriter().write(errorJson);

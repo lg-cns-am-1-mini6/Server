@@ -1,6 +1,7 @@
 package com.aminspire.global.security.exception;
 
 import com.aminspire.global.common.response.CommonResponse;
+import com.aminspire.global.exception.ErrorMsg;
 import com.aminspire.global.exception.errorcode.JwtErrorCode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,8 +25,12 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
         response.setContentType("application/json;charset=UTF-8");
         response.setStatus(JwtErrorCode.FORBIDDEN.getHttpStatus().value());
 
-        CommonResponse<String> errorResponse = CommonResponse.onFailure(
-                JwtErrorCode.FORBIDDEN.getHttpStatus().value(), JwtErrorCode.FORBIDDEN.getMessage());
+        CommonResponse<ErrorMsg> errorResponse = CommonResponse.onFailure(
+                JwtErrorCode.FORBIDDEN.getHttpStatus().value(),
+                ErrorMsg.builder()
+                        .code(JwtErrorCode.FORBIDDEN.getCodeName())
+                        .reason(JwtErrorCode.FORBIDDEN.getMessage())
+                        .build());
         String errorJson = objectMapper.writeValueAsString(errorResponse);
 
         response.getWriter().write(errorJson);
