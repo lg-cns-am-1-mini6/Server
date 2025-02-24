@@ -8,10 +8,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.aminspire.domain.user.controller.UserController;
+import com.aminspire.domain.user.domain.user.User;
 import com.aminspire.global.common.response.CommonResponse;
+import com.aminspire.global.security.AuthDetails;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -19,8 +23,8 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin(origins = {"http://localhost:3000", "http://localhost:5173", "http://localhost:8080"})
 @RequestMapping("/articles")
 public class ArticleController {
-    @Autowired
-    private ArticleService articleService;
+    @Autowired private ArticleService articleService;
+    @Autowired private UserController userController;
 
     // 기사 검색
     @GetMapping("/search")
@@ -32,15 +36,13 @@ public class ArticleController {
     // 특정 유저의 스크랩 저장
     @PostMapping("/scrap")
     public CommonResponse<Map<String, String>> scrapArticle(
-            @RequestHeader("Authorization") String token,
+            @AuthenticationPrincipal AuthDetails authDetails,
             @RequestBody ArticleInfoResponse.ArticleInfoItems articleInfoItems) {
         Map<String, String> result = new HashMap<>();
 
-        if (token.split("\\.").length != 3) {
-            throw new IllegalArgumentException("유효하지 않은 JWT 토큰 형식입니다");
-        }
-        // 스크랩 기사 저장
-        articleService.saveArticle(token, articleInfoItems);
+        User user = authDetails.user();
+
+        articleService.saveArticle(user, articleInfoItems);
         result.put("message", "기사 스크랩 성공!");
 
         return CommonResponse.onSuccess(HttpStatus.CREATED.value(), result); // 201 CREATED
@@ -48,8 +50,10 @@ public class ArticleController {
 
     // 특정 유저의 스크랩 조회
     @GetMapping("/scrap")
-    public CommonResponse<?> getScrapedArticles(@RequestHeader("Authorization") String token) {
-        List<Article> scrapedArticles = articleService.getArticlesByUser(token);
+    public CommonResponse<?> getScrapedArticles(@AuthenticationPrincipal AuthDetails authDetails) {
+        User user = authDetails.user();
+
+        List<Article> scrapedArticles = articleService.getArticlesByUser(user);
 
         return CommonResponse.onSuccess(HttpStatus.OK.value(), scrapedArticles); // 200 OK
     }
@@ -57,11 +61,12 @@ public class ArticleController {
     // 특정 유저의 스크랩 삭제
     @DeleteMapping("/scrap")
     public CommonResponse<Map<String, String>> deleteScrapArticle(
-            @RequestHeader("Authorization") String token,
+            @AuthenticationPrincipal AuthDetails authDetails,
             @RequestParam Long newsId) {
         Map<String, String> result = new HashMap<>();
+        User user = authDetails.user();
 
-        articleService.deleteScrap(token, newsId);
+        articleService.deleteScrap(user, newsId);
         result.put("message", "기사 스크랩 삭제 성공!");
         return CommonResponse.onSuccess(HttpStatus.OK.value(), result); // 200 OK
     }
