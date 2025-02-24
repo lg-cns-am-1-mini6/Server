@@ -1,6 +1,5 @@
 package com.aminspire.global.security.jwt;
 
-import com.aminspire.domain.user.domain.user.Role;
 import com.aminspire.domain.user.domain.user.User;
 import com.aminspire.global.exception.CommonException;
 import com.aminspire.global.exception.errorcode.JwtErrorCode;
