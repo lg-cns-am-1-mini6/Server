@@ -16,6 +16,7 @@ public class UserController {
 
     private final UserService userService;
 
+    // 사용자 상세 정보 조회
     @GetMapping
     public UserResponse showUser(@AuthenticationPrincipal AuthDetails authDetails) {
         return userService.showUser(authDetails.user());

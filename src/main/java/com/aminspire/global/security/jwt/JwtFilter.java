@@ -28,6 +28,7 @@ public class JwtFilter extends OncePerRequestFilter {
     protected void doFilterInternal(
             HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
+
         String token = jwtProvider.getAccessTokenFromRequest(request);
 
         if (StringUtils.hasText(token) && jwtProvider.validateToken(token, "access")) {
@@ -37,14 +38,15 @@ public class JwtFilter extends OncePerRequestFilter {
             if (userDetails != null) {
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(
-                                userDetails, null, userDetails.getAuthorities());
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                                userDetails, null, userDetails.getAuthorities()); // 인증 진행
+                SecurityContextHolder.getContext().setAuthentication(authentication); // 세션에 사용자 인증 정보 등록
             }
         }
 
         filterChain.doFilter(request, response);
     }
 
+    // JwtFilter 내부 예외 클래스
     public static class TokenInValidateException extends JwtException {
 
         public TokenInValidateException(String message) {
