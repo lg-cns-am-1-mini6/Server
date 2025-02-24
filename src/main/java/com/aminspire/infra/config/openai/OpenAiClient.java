@@ -1,12 +1,10 @@
 package com.aminspire.infra.config.openai;
 
-package com.example.ai.client;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.*;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.client.WebClient;
-
+import org.springframework.web.client.RestTemplate;
 import java.util.List;
 import java.util.Map;
 
@@ -14,40 +12,51 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class OpenAiClient {
 
-    private final WebClient webClient;
+    private final RestTemplate restTemplate = new RestTemplate(); // ✅ RestTemplate 인스턴스 생성
+    private final OpenAiPromptProperties openAiPromptProperties;
 
-    @Value("${openai.api.key}")
-    private String apiKey;
+    public List<String> generateKeywordExtractPrompt(String text) {
 
-    private static final String OPENAI_URL = "https://api.openai.com/v1/chat/completions";
-
-    public List<String> callOpenAiApi(String text) {
-        String prompt = "다음 텍스트에서 핵심 키워드를 5개 추출하여 JSON 배열로 반환해줘:\n\n" + text;
-
+        String prompt = openAiPromptProperties.getKeywordExtractionPrompt() + text;
         Map<String, Object> requestBody = Map.of(
                 "model", "gpt-4",
                 "messages", List.of(
-                        Map.of("role", "system", "content", "너는 한국어 텍스트에서 주요 키워드를 추출하는 도우미야."),
+                        Map.of("role", "system", "content", openAiPromptProperties.getRole()),
                         Map.of("role", "user", "content", prompt)
                 ),
-                "max_tokens", 100,
-                "temperature", 0.5
+                "max_tokens", openAiPromptProperties.getMaxTokens(),
+                "temperature", openAiPromptProperties.getTemperature()
         );
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBearerAuth(openAiPromptProperties.getOpenAiUrl());
 
-        return webClient.post()
-                .uri(OPENAI_URL)
-                .header("Authorization", "Bearer " + apiKey)
-                .header("Content-Type", "application/json")
-                .bodyValue(requestBody)
-                .retrieve()
-                .bodyToMono(Map.class)
-                .map(response -> {
-                    List<Map<String, String>> choices = (List<Map<String, String>>) response.get("choices");
-                    if (choices != null && !choices.isEmpty()) {
-                        return List.of(choices.get(0).get("message").get("content").split(","));
-                    }
-                    return List.of();
-                })
-                .block();
+        //요청 객체 생성
+        HttpEntity<Map<String, Object>> requestEntity = new HttpEntity<>(requestBody, headers);
+
+        try {
+            // OpenAI API 호출
+            ResponseEntity<Map> response = restTemplate.exchange(
+                    openAiPromptProperties.getOpenAiUrl(), HttpMethod.POST, requestEntity, Map.class
+            );
+
+            //응답 데이터 추출
+            if (response.getStatusCode() == HttpStatus.OK) {
+                Map<String, Object> responseBody = response.getBody();
+                List<Map<String, Object>> choices = (List<Map<String, Object>>) responseBody.get("choices");
+
+                if (choices != null && !choices.isEmpty()) {
+                    //OpenAI 응답에서 키워드 추출
+                    String content = (String) choices.get(0).get("message");
+                    return List.of(content.split(",")); // ✅ 키워드 리스트 반환
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return List.of();
     }
+
+
 }

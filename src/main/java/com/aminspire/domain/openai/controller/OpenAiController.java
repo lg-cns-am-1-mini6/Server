@@ -4,7 +4,6 @@ import com.aminspire.domain.openai.dto.AiKeywordsExtractResponse;
 import com.aminspire.domain.openai.service.OpenAiService;
 import com.aminspire.global.util.OpenAiUtil;
 import lombok.RequiredArgsConstructor;
-import org.apache.http.client.methods.HttpHead;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
