@@ -21,28 +21,33 @@ public class AuthController {
     private final SocialLoginService socialLoginService;
     private final AuthService authService;
 
+    // 구글 로그인
     @PostMapping("/google/sign-in")
     public LoginResponse signInWithGoogle(
             @RequestParam("code") String code, HttpServletResponse response) {
         return socialLoginService.signInWithGoogle(code, response);
     }
 
+    // 카카오 로그인
     @PostMapping("/kakao/sign-in")
     public LoginResponse signInWithKakao(
             @RequestParam("code") String code, HttpServletResponse response) {
         return socialLoginService.signInWithKakao(code, response);
     }
 
+    // 토큰 재발급
     @PostMapping("/reissue")
     public TokenResponse reissue(HttpServletRequest request, HttpServletResponse response) {
         return authService.recreate(request, response);
     }
 
+    // 로그아웃
     @PostMapping("/sign-out")
     public TokenResponse signOut(HttpServletRequest request, HttpServletResponse response) {
         return authService.signOut(request, response);
     }
 
+    // 사용자 탈퇴
     @DeleteMapping("/cancel")
     public TokenResponse deleteUser(HttpServletRequest request, HttpServletResponse response,
                                     @AuthenticationPrincipal AuthDetails authDetails) {

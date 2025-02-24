@@ -81,6 +81,7 @@ public class JwtProvider {
         redisClient.setValue(user.getEmail(), refreshToken, 1000 * 60 * 60 * 24 * 7L); // Redis에 저장
     }
 
+    // 엑세스 토큰 및 리프레시 토큰 재발급
     public void recreate(String refreshToken, HttpServletResponse response) {
         String email = getEmail(refreshToken);
         String role = getRole(refreshToken);
@@ -91,7 +92,7 @@ public class JwtProvider {
         refreshToken = recreateRefreshToken(email, role);
         response.addHeader(HttpHeaders.SET_COOKIE, createResponseCookie("refreshToken", refreshToken).toString());
 
-        redisClient.setValue(email, refreshToken, 1000 * 60 * 60 * 24 * 7L);
+        redisClient.setValue(email, refreshToken, 1000 * 60 * 60 * 24 * 7L); // Redis 값 덮어쓰기
     }
 
     public String recreateAccessToken(String email, String role) {
@@ -116,6 +117,7 @@ public class JwtProvider {
                 .compact();
     }
 
+    // 쿠키 생성
     public ResponseCookie createResponseCookie(String key, String value) {
 
         return ResponseCookie.from(key, value)
@@ -127,6 +129,7 @@ public class JwtProvider {
                 .build();
     }
 
+    // JWT 토큰 검증
     public boolean validateToken(String token, String tokenType) {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
@@ -136,7 +139,6 @@ public class JwtProvider {
             }
 
             return true;
-            // return !claims.getBody().getExpiration().before(new Date());
         } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
             throw new TokenInValidateException("잘못된 JWT 서명입니다.", e);
 
@@ -151,6 +153,7 @@ public class JwtProvider {
         }
     }
 
+    // 엑세스 토큰 및 리프레시 토큰 제거
     public void invalidateTokens(HttpServletRequest request, HttpServletResponse response) {
 
         String accessToken = getAccessTokenFromRequest(request);
@@ -168,8 +171,9 @@ public class JwtProvider {
             throw new CommonException(JwtErrorCode.REFRESH_TOKEN_INVALID);
         }
 
-        redisClient.deleteValue(getEmail(accessToken));
+        redisClient.deleteValue(getEmail(accessToken)); // Redis에서 리프레시 토큰 제거
 
+        // 쿠키 제거
         ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", null)
                 .maxAge(0)
                 .secure(true)
@@ -218,9 +222,5 @@ public class JwtProvider {
 
     public String getRole(String token) {
         return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().get("role", String.class);
-    }
-
-    public Long getExpirationTime(String token) {
-        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getExpiration().getTime();
     }
 }
