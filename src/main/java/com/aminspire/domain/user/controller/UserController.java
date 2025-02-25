@@ -2,7 +2,7 @@ package com.aminspire.domain.user.controller;
 
 import com.aminspire.domain.user.dto.request.UserUpdateRequest;
 import com.aminspire.domain.user.dto.response.UserResponse;
-import com.aminspire.domain.user.service.UserService;
+import com.aminspire.domain.user.service.user.UserService;
 import com.aminspire.global.security.AuthDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
