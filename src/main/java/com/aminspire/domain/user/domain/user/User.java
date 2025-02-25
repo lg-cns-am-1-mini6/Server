@@ -41,11 +41,12 @@ public class User extends BaseTimeEntity {
     private String imageUrl;
 
     @Builder
-    public User(String email, String name, Role role, LoginType loginType) {
+    public User(String email, String name, Role role, LoginType loginType, String imageUrl) {
         this.email = email;
         this.name = name;
         this.role = role;
         this.loginType = loginType;
+        this.imageUrl = imageUrl;
     }
 
     public void updateName(String name) {
