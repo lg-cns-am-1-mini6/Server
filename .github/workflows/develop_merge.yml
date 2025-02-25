@@ -35,7 +35,7 @@ jobs:
       - name: web docker build and push
         run: |
           docker login -u ${{ env.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_SECRET }}
-          docker build -t ${{ env.DOCKERHUB_USERNAME }}/${{ env.DOCKERHUB_IMAGE_NAME }} .
+          docker build -t ${{ env.DOCKERHUB_USERNAME }}/${{ env.DOCKERHUB_IMAGE_NAME }} --no-cache --progress plain .
           docker push ${{ env.DOCKERHUB_USERNAME }}/${{ env.DOCKERHUB_IMAGE_NAME }}
 
       - name: Deploy to EC2
