@@ -29,6 +29,13 @@ public class JwtFilter extends OncePerRequestFilter {
             HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
+        // ✅ 특정 경로는 JWT 인증을 거치지 않도록 예외 처리
+        String requestURI = request.getRequestURI();
+        if (requestURI.startsWith("/articles/search")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String token = jwtProvider.getAccessTokenFromRequest(request);
 
         if (StringUtils.hasText(token) && jwtProvider.validateToken(token, "access")) {

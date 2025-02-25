@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
-@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:5173", "http://localhost:8080"})
 @RequestMapping("/articles")
 public class ArticleController {
     @Autowired private ArticleService articleService;
