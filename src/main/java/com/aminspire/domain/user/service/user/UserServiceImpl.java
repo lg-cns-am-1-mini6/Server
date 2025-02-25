@@ -16,7 +16,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse showUser(User user) {
-        return UserResponse.of(user.getEmail(), user.getName());
+        return UserResponse.of(user.getEmail(), user.getName(), user.getImageUrl());
     }
 
     @Override
@@ -33,6 +33,6 @@ public class UserServiceImpl implements UserService {
 
         userRepository.save(user);
 
-        return UserResponse.of(user.getEmail(), user.getName());
+        return UserResponse.of(user.getEmail(), user.getName(), user.getImageUrl());
     }
 }
