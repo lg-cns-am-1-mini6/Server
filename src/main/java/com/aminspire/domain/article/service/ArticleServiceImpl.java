@@ -4,11 +4,10 @@ import com.aminspire.domain.article.domain.Article;
 import com.aminspire.domain.article.dto.response.ArticleInfoResponse;
 import com.aminspire.domain.article.repository.ArticleRepository;
 import com.aminspire.domain.user.domain.user.User;
-import com.aminspire.domain.user.repository.UserRepository;
 import com.aminspire.global.exception.CommonException;
 import com.aminspire.global.exception.errorcode.NaverErrorCode;
 import com.aminspire.global.exception.errorcode.ScrapErrorCode;
-import com.aminspire.global.security.jwt.JwtProvider;
+import com.aminspire.global.utils.HtmlCleaner;
 import com.aminspire.infra.config.feign.NaverFeignClient;
 
 import java.util.List;
@@ -27,9 +26,6 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Autowired private NaverFeignClient naverFeignClient;
     @Autowired private ArticleRepository articleRepository;
-    @Autowired private UserRepository userRepository;
-    @Autowired JwtProvider jwtProvider;
-
 
     // 기사 검색
     public List<ArticleInfoResponse.ArticleInfoItems> searchArticles(String query) {
@@ -49,6 +45,9 @@ public class ArticleServiceImpl implements ArticleService {
                 log.info("검색 결과 없음");
                 throw new CommonException(NaverErrorCode.NAVER_API_EMPTY_RESPONSE);
             }
+
+            // HTML 태그 정리 적용
+            results.forEach(HtmlCleaner::cleanObjectHtml);
 
             return results;
 
