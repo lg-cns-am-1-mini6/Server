@@ -31,14 +31,14 @@ public class SecurityConfig {
     private final ExceptionFilter exceptionFilter;
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
-
+/*
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         return web -> {
             web.ignoring()
                     .requestMatchers("/articles/search");// 필터를 타면 안되는 경로
         };
-    }
+    }*/
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
