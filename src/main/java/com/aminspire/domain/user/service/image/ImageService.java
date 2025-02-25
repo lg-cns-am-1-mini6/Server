@@ -1,4 +1,4 @@
-package com.aminspire.infra.config.s3;
+package com.aminspire.domain.user.service.image;
 
 import com.amazonaws.HttpMethod;
 import com.amazonaws.services.s3.AmazonS3;
