@@ -2,32 +2,22 @@ package com.aminspire.domain.article.domain;
 
 import com.aminspire.domain.common.model.BaseTimeEntity;
 import com.aminspire.domain.user.domain.user.User;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
+import lombok.*;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
+@EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "article") // 일반적으로 테이블명은 소문자로 설정
+@Table(name = "article")
 public class Article extends BaseTimeEntity {
 
-	@Id
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "id")
+    @Column(name = "id")
     private Long id;
 
     @Column(name = "title")
@@ -41,8 +31,10 @@ public class Article extends BaseTimeEntity {
 
     @Column(name = "pub_date")
     private String pubDate;
-    
-    // TODO 유저 ID
-    @Column(name = "user_id")
-    private Long userId;
+
+    // User와 ManyToOne 관계 설정 (user_id 외래키 추가)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false) // 외래키 이름: user_id
+    @JsonIgnore
+    private User user;
 }

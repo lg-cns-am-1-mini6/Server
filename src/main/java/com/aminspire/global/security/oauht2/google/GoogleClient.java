@@ -33,16 +33,26 @@ public class GoogleClient {
     private String googleUserInfoUri;
 
     public GoogleToken getGoogleAccessToken(String code, String redirectUri) {
-        String response = restClient.post()
-                .uri(googleTokenUri)
-                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-                .body("grant_type=" + googleGrantType +
-                        "&client_id=" + googleClientId +
-                        "&redirect_uri=" + redirectUri +
-                        "&code=" + code +
-                        "&client_secret=" + googleClientSecret)
-                .retrieve()
-                .body(String.class);
+        String response =
+                restClient
+                        .post()
+                        .uri(googleTokenUri)
+                        .header(
+                                HttpHeaders.CONTENT_TYPE,
+                                MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+                        .body(
+                                "grant_type="
+                                        + googleGrantType
+                                        + "&client_id="
+                                        + googleClientId
+                                        + "&redirect_uri="
+                                        + redirectUri
+                                        + "&code="
+                                        + code
+                                        + "&client_secret="
+                                        + googleClientSecret)
+                        .retrieve()
+                        .body(String.class);
 
         try {
             return objectMapper.readValue(response, GoogleToken.class);
@@ -52,11 +62,13 @@ public class GoogleClient {
     }
 
     public GoogleProfile getMemberInfo(GoogleToken googleToken) {
-        String response = restClient.get()
-                .uri(googleUserInfoUri)
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + googleToken.access_token())
-                .retrieve()
-                .body(String.class);
+        String response =
+                restClient
+                        .get()
+                        .uri(googleUserInfoUri)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + googleToken.access_token())
+                        .retrieve()
+                        .body(String.class);
 
         try {
             return objectMapper.readValue(response, GoogleProfile.class);

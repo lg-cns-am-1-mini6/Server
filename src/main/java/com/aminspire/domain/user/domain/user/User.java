@@ -1,6 +1,8 @@
 package com.aminspire.domain.user.domain.user;
 
+import com.aminspire.domain.article.domain.Article;
 import com.aminspire.domain.common.model.BaseTimeEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -8,9 +10,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLDelete;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
-@SQLDelete(sql = "UPDATE user SET deleted_at = NOW() where id = ?")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User extends BaseTimeEntity {
 
@@ -40,4 +44,9 @@ public class User extends BaseTimeEntity {
         this.role = role;
         this.loginType = loginType;
     }
+
+    // 유저가 작성한 기사 리스트
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<Article> articles = new ArrayList<>();
 }

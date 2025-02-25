@@ -36,6 +36,9 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
+    //feign
+    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign:4.2.0'
+
     // Spring Security
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.security:spring-security-test'
@@ -73,9 +76,7 @@ dependencies {
     //JSON processing
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 
-    //OpenAI
-    implementation 'org.springframework.boot:spring-boot-starter-webflux'
-    implementation 'com.fasterxml.jackson.core:jackson-databind'
+
 }
 
 tasks.named('test') {

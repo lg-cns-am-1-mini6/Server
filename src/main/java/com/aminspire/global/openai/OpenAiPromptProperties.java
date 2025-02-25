@@ -1,4 +1,4 @@
-package com.aminspire.infra.config.openai;
+package com.aminspire.global.openai;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;

@@ -1,18 +1,17 @@
 package com.aminspire.global;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+
+import com.aminspire.global.common.response.CommonResponse;
 import com.aminspire.global.exception.CommonException;
 import com.aminspire.global.exception.ErrorMsg;
 import com.aminspire.global.exception.GlobalExceptionHandler;
 import com.aminspire.global.exception.errorcode.ExampleErrorCode;
-import com.aminspire.global.common.response.CommonResponse;
+import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
-
-import java.util.Optional;
-
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
 public class ExceptionHandlerTest {
 
@@ -24,8 +23,6 @@ public class ExceptionHandlerTest {
             throw new CommonException(exampleErrorCode);
         }
     }
-
-
 
     @Test
     @DisplayName("authError Test")
@@ -41,8 +38,7 @@ public class ExceptionHandlerTest {
 
         // given: 예외 핸들러와 예외 생성
         GlobalExceptionHandler globalExceptionHandler = new GlobalExceptionHandler();
-        CommonException exception =
-                new CommonException(ExampleErrorCode.USER_NOT_FOUND);
+        CommonException exception = new CommonException(ExampleErrorCode.USER_NOT_FOUND);
 
         // when: 예외 핸들러 실행
         ResponseEntity<CommonResponse<ErrorMsg>> response =
@@ -53,9 +49,13 @@ public class ExceptionHandlerTest {
         System.out.println(response);
         assertThat(response).isInstanceOf(ResponseEntity.class);
         assertThat(response.getBody()).isInstanceOf(CommonResponse.class);
-        assertThat(response.getStatusCode()).isEqualTo(ExampleErrorCode.USER_NOT_FOUND.getHttpStatus());
-        assertThat(response.getBody().getStatus()).isEqualTo(ExampleErrorCode.USER_NOT_FOUND.getHttpStatus().value());
-        assertThat(response.getBody().getData().getCode()).isEqualTo(String.valueOf(ExampleErrorCode.USER_NOT_FOUND));
-        assertThat(response.getBody().getData().getReason()).isEqualTo(ExampleErrorCode.USER_NOT_FOUND.getMessage());
+        assertThat(response.getStatusCode())
+                .isEqualTo(ExampleErrorCode.USER_NOT_FOUND.getHttpStatus());
+        assertThat(response.getBody().getStatus())
+                .isEqualTo(ExampleErrorCode.USER_NOT_FOUND.getHttpStatus().value());
+        assertThat(response.getBody().getData().getCode())
+                .isEqualTo(String.valueOf(ExampleErrorCode.USER_NOT_FOUND));
+        assertThat(response.getBody().getData().getReason())
+                .isEqualTo(ExampleErrorCode.USER_NOT_FOUND.getMessage());
     }
 }

@@ -3,6 +3,7 @@ package com.aminspire.global.security.oauht2.kakao;
 import com.aminspire.global.security.oauht2.kakao.dto.KakaoProfile;
 import com.aminspire.global.security.oauht2.kakao.dto.KakaoToken;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,8 +12,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
-
-import java.io.IOException;
 
 @RequiredArgsConstructor
 @Service
@@ -30,19 +29,25 @@ public class KakaoClient {
     private final ObjectMapper objectMapper;
 
     public KakaoToken getAccessTokenFromKakao(String code, String redirectUri) {
-        String response = restClient.post()
-                .uri(uriBuilder -> uriBuilder
-                        .scheme("https")
-                        .host("kauth.kakao.com")
-                        .path("/oauth/token")
-                        .queryParam("grant_type", "authorization_code")
-                        .queryParam("client_id", clientId)
-                        .queryParam("code", code)
-                        .queryParam("redirect_uri", redirectUri)
-                        .build())
-                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-                .retrieve()
-                .body(String.class);
+        String response =
+                restClient
+                        .post()
+                        .uri(
+                                uriBuilder ->
+                                        uriBuilder
+                                                .scheme("https")
+                                                .host("kauth.kakao.com")
+                                                .path("/oauth/token")
+                                                .queryParam("grant_type", "authorization_code")
+                                                .queryParam("client_id", clientId)
+                                                .queryParam("code", code)
+                                                .queryParam("redirect_uri", redirectUri)
+                                                .build())
+                        .header(
+                                HttpHeaders.CONTENT_TYPE,
+                                MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+                        .retrieve()
+                        .body(String.class);
 
         try {
             return objectMapper.readValue(response, KakaoToken.class);
@@ -53,11 +58,13 @@ public class KakaoClient {
     }
 
     public KakaoProfile getMemberInfo(KakaoToken kakaoToken) {
-        String response = restClient.get()
-                .uri(KAUTH_USER_URL_HOST)
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + kakaoToken.accessToken())
-                .retrieve()
-                .body(String.class);
+        String response =
+                restClient
+                        .get()
+                        .uri(KAUTH_USER_URL_HOST)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + kakaoToken.accessToken())
+                        .retrieve()
+                        .body(String.class);
 
         try {
             KakaoProfile kakaoProfile = objectMapper.readValue(response, KakaoProfile.class);
