@@ -1,4 +1,4 @@
-package com.aminspire.domain.user.service;
+package com.aminspire.domain.user.service.user;
 
 import com.aminspire.domain.user.domain.user.User;
 import com.aminspire.domain.user.dto.request.UserUpdateRequest;
@@ -16,7 +16,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse showUser(User user) {
-        return UserResponse.of(user.getEmail(), user.getName());
+        return UserResponse.of(user.getEmail(), user.getName(), user.getImageUrl());
     }
 
     @Override
@@ -27,8 +27,12 @@ public class UserServiceImpl implements UserService {
             user.updateName(userUpdateRequest.name());
         }
 
+        if (userUpdateRequest.imageUrl() != null) {
+            user.updateImageUrl(userUpdateRequest.imageUrl());
+        }
+
         userRepository.save(user);
 
-        return UserResponse.of(user.getEmail(), user.getName());
+        return UserResponse.of(user.getEmail(), user.getName(), user.getImageUrl());
     }
 }
