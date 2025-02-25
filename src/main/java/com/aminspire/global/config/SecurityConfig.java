@@ -35,15 +35,6 @@ public class SecurityConfig {
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 
     @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> /articles/search");
-        return web -> {
-            web.ignoring()
-                    .requestMatchers("/articles/search");// 필터를 타면 안되는 경로
-        };
-    }
-
-    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.cors(Customizer.withDefaults()).csrf(AbstractHttpConfigurer::disable);
 
@@ -66,8 +57,6 @@ public class SecurityConfig {
                         .anyRequest().permitAll()) // 인가 경로 설정
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(exceptionFilter, JwtFilter.class); // JwtFilter 내부 예외 처리 필터 등록
-
-        log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
 
         return http.build();
     }

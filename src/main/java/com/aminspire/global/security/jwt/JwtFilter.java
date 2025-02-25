@@ -29,36 +29,21 @@ public class JwtFilter extends OncePerRequestFilter {
             HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        // ✅ 특정 경로는 JWT 인증을 거치지 않도록 예외 처리
-        String requestURI = request.getRequestURI();
-        if (requestURI.startsWith("/articles/search")) {
-            log.info(">>>>>>>>>>>>>>>>>>>>>>>>>> /articles/search");
-            filterChain.doFilter(request, response);
-            return;
-        }
 
         String token = jwtProvider.getAccessTokenFromRequest(request);
 
-        try {
-            if (StringUtils.hasText(token) && jwtProvider.validateToken(token, "access")) {
-                String email = jwtProvider.getEmail(token);
-                UserDetails userDetails = authDetailsService.loadUserByUsername(email);
 
-                if (userDetails != null) {
-                    UsernamePasswordAuthenticationToken authentication =
-                            new UsernamePasswordAuthenticationToken(
-                                    userDetails, null, userDetails.getAuthorities()); // 인증 진행
-                    SecurityContextHolder.getContext().setAuthentication(authentication); // 세션에 사용자 인증 정보 등록
-                }
+        if (StringUtils.hasText(token) && jwtProvider.validateToken(token, "access")) {
+            String email = jwtProvider.getEmail(token);
+            UserDetails userDetails = authDetailsService.loadUserByUsername(email);
+
+            if (userDetails != null) {
+                UsernamePasswordAuthenticationToken authentication =
+                        new UsernamePasswordAuthenticationToken(
+                                userDetails, null, userDetails.getAuthorities()); // 인증 진행
+                SecurityContextHolder.getContext().setAuthentication(authentication); // 세션에 사용자 인증 정보 등록
             }
-        } catch (JwtException e) {
-            // ✅ JWT 인증 실패 시 예외 로그 출력 및 401 상태 코드 설정
-            log.error("JWT 인증 실패: {}", e.getMessage());
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("Invalid JWT Token");
-            return;
         }
-
 
         filterChain.doFilter(request, response);
     }
