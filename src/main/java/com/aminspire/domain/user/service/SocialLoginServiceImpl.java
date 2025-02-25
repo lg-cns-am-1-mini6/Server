@@ -20,6 +20,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
+
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -100,11 +103,15 @@ public class SocialLoginServiceImpl implements SocialLoginService {
 
     @Transactional
     protected User createUser(String email, LoginType loginType) {
+
+        List<String> names = List.of("민지", "하니", "다니엘", "해린", "혜인");
+        String randomName = names.get(ThreadLocalRandom.current().nextInt(names.size()));
+
         User user =
                 User.builder()
                         .email(email)
                         .role(Role.ROLE_USER)
-                        .name(null)
+                        .name(randomName)
                         .loginType(loginType)
                         .build();
         return userRepository.save(user);

@@ -45,6 +45,10 @@ public class User extends BaseTimeEntity {
         this.loginType = loginType;
     }
 
+    public void updateName(String name) {
+        this.name = name;
+    }
+
     // 유저가 작성한 기사 리스트
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
