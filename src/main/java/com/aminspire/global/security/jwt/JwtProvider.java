@@ -124,7 +124,7 @@ public class JwtProvider {
                 .secure(true)
                 .path("/")
                 .httpOnly(true)
-                .sameSite("Strict")
+                .sameSite("None")
                 .build();
     }
 
