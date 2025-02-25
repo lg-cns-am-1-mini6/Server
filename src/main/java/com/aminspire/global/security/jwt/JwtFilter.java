@@ -29,9 +29,7 @@ public class JwtFilter extends OncePerRequestFilter {
             HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-
         String token = jwtProvider.getAccessTokenFromRequest(request);
-
 
         if (StringUtils.hasText(token) && jwtProvider.validateToken(token, "access")) {
             String email = jwtProvider.getEmail(token);
