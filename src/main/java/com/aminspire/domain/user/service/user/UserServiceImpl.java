@@ -27,6 +27,10 @@ public class UserServiceImpl implements UserService {
             user.updateName(userUpdateRequest.name());
         }
 
+        if (userUpdateRequest.imageUrl() != null) {
+            user.updateImageUrl(userUpdateRequest.imageUrl());
+        }
+
         userRepository.save(user);
 
         return UserResponse.of(user.getEmail(), user.getName());
