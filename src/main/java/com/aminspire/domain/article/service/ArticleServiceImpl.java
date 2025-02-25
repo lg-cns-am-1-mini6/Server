@@ -37,6 +37,7 @@ public class ArticleServiceImpl implements ArticleService {
             log.warn("잘못된 요청: 검색어가 비어 있음");
             throw new CommonException(NaverErrorCode.NAVER_API_CLIENT_ERROR);
         }
+        log.info("query: " + query);
 
         try {
             // FeignClient를 통해 네이버 뉴스 API 요청
