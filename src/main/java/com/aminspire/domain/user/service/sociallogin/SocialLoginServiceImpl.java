@@ -1,4 +1,4 @@
-package com.aminspire.domain.user.service;
+package com.aminspire.domain.user.service.sociallogin;
 
 import com.aminspire.domain.user.domain.user.LoginType;
 import com.aminspire.domain.user.domain.user.Role;

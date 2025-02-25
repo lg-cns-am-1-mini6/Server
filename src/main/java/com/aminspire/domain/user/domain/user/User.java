@@ -37,6 +37,9 @@ public class User extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private LoginType loginType;
 
+    @Column(columnDefinition = "varchar(255)")
+    private String imageUrl;
+
     @Builder
     public User(String email, String name, Role role, LoginType loginType) {
         this.email = email;
@@ -47,6 +50,10 @@ public class User extends BaseTimeEntity {
 
     public void updateName(String name) {
         this.name = name;
+    }
+
+    public void updateImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
     // 유저가 작성한 기사 리스트

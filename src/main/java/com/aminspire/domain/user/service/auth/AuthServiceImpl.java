@@ -1,4 +1,4 @@
-package com.aminspire.domain.user.service;
+package com.aminspire.domain.user.service.auth;
 
 import com.aminspire.domain.user.domain.user.User;
 import com.aminspire.domain.user.dto.response.TokenResponse;
