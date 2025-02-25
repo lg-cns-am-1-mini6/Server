@@ -38,17 +38,26 @@ public class JwtFilter extends OncePerRequestFilter {
 
         String token = jwtProvider.getAccessTokenFromRequest(request);
 
-        if (StringUtils.hasText(token) && jwtProvider.validateToken(token, "access")) {
-            String email = jwtProvider.getEmail(token);
-            UserDetails userDetails = authDetailsService.loadUserByUsername(email);
+        try {
+            if (StringUtils.hasText(token) && jwtProvider.validateToken(token, "access")) {
+                String email = jwtProvider.getEmail(token);
+                UserDetails userDetails = authDetailsService.loadUserByUsername(email);
 
-            if (userDetails != null) {
-                UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(
-                                userDetails, null, userDetails.getAuthorities()); // 인증 진행
-                SecurityContextHolder.getContext().setAuthentication(authentication); // 세션에 사용자 인증 정보 등록
+                if (userDetails != null) {
+                    UsernamePasswordAuthenticationToken authentication =
+                            new UsernamePasswordAuthenticationToken(
+                                    userDetails, null, userDetails.getAuthorities()); // 인증 진행
+                    SecurityContextHolder.getContext().setAuthentication(authentication); // 세션에 사용자 인증 정보 등록
+                }
             }
+        } catch (JwtException e) {
+            // ✅ JWT 인증 실패 시 예외 로그 출력 및 401 상태 코드 설정
+            log.error("JWT 인증 실패: {}", e.getMessage());
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("Invalid JWT Token");
+            return;
         }
+
 
         filterChain.doFilter(request, response);
     }
