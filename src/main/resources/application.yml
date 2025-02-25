@@ -9,3 +9,4 @@ spring:
       - redis
       - security
       - feign
+      - s3
