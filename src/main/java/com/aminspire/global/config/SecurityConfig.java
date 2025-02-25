@@ -5,6 +5,7 @@ import com.aminspire.global.security.exception.CustomAuthenticationEntryPoint;
 import com.aminspire.global.security.exception.ExceptionFilter;
 import com.aminspire.global.security.jwt.JwtFilter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -22,6 +23,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.Collections;
 import java.util.List;
 
+@Slf4j
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -31,14 +33,15 @@ public class SecurityConfig {
     private final ExceptionFilter exceptionFilter;
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
-/*
+
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
+        log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> /articles/search");
         return web -> {
             web.ignoring()
                     .requestMatchers("/articles/search");// 필터를 타면 안되는 경로
         };
-    }*/
+    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -64,6 +67,8 @@ public class SecurityConfig {
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(exceptionFilter, JwtFilter.class); // JwtFilter 내부 예외 처리 필터 등록
 
+        log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+
         return http.build();
     }
 
@@ -71,7 +76,7 @@ public class SecurityConfig {
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.setAllowedOrigins(List.of("http://localhost:3000", "http://localhost:5173", "https://newjeans.site/"));
+        config.setAllowedOrigins(List.of("http://localhost:3000", "http://localhost:5173", "https://newjeans.site"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setExposedHeaders(List.of("*"));
