@@ -1,13 +1,12 @@
 package com.aminspire.domain.user.controller;
 
+import com.aminspire.domain.user.dto.request.UserUpdateRequest;
 import com.aminspire.domain.user.dto.response.UserResponse;
 import com.aminspire.domain.user.service.UserService;
 import com.aminspire.global.security.AuthDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -20,5 +19,12 @@ public class UserController {
     @GetMapping
     public UserResponse showUser(@AuthenticationPrincipal AuthDetails authDetails) {
         return userService.showUser(authDetails.user());
+    }
+
+    // 사용자 정보 수정
+    @PatchMapping
+    public UserResponse updateUser(@RequestBody UserUpdateRequest userUpdateRequest,
+                                   @AuthenticationPrincipal AuthDetails authDetails) {
+        return userService.updateUser(authDetails.user(), userUpdateRequest);
     }
 }
