@@ -32,6 +32,7 @@ public class JwtFilter extends OncePerRequestFilter {
         // ✅ 특정 경로는 JWT 인증을 거치지 않도록 예외 처리
         String requestURI = request.getRequestURI();
         if (requestURI.startsWith("/articles/search")) {
+            log.info(">>>>>>>>>>>>>>>>>>>>>>>>>> /articles/search");
             filterChain.doFilter(request, response);
             return;
         }
