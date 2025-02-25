@@ -58,7 +58,7 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests((authorize) -> authorize
                         .requestMatchers("/auth/google/sign-in", "auth/kakao/sign-in", "/auth/reissue").permitAll()
-                        //.requestMatchers("/articles/search").permitAll()
+                        .requestMatchers("/articles/search").permitAll()
                         .requestMatchers("/auth/sign-out", "/auth/cancel", "/user/**").authenticated()
                         .anyRequest().permitAll()) // 인가 경로 설정
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
