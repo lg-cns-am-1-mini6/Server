@@ -9,4 +9,4 @@ spring:
       - redis
       - security
       - openai
-
+      - feign

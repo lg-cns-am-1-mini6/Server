@@ -18,11 +18,21 @@ public class CommonResponseAdvice implements ResponseBodyAdvice {
     }
 
     @Override
-    public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType, Class selectedConverterType, ServerHttpRequest request, ServerHttpResponse response) {
+    public Object beforeBodyWrite(
+            Object body,
+            MethodParameter returnType,
+            MediaType selectedContentType,
+            Class selectedConverterType,
+            ServerHttpRequest request,
+            ServerHttpResponse response) {
         HttpServletResponse httpServletResponse =
                 ((ServletServerHttpResponse) response).getServletResponse();
         int status = httpServletResponse.getStatus();
         HttpStatus resolve = HttpStatus.resolve(status);
+
+        if (body instanceof CommonResponse) {
+            return body;
+        }
 
         if (resolve == null || body instanceof String) {
             return body;

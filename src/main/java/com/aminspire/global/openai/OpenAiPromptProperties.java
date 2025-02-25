@@ -1,4 +1,4 @@
-package com.aminspire.infra.config.openai;
+package com.aminspire.global.openai;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -19,6 +19,8 @@ public class OpenAiPromptProperties {
     private int maxTokens;
     @Value("${openai.prompts.temperature}")
     private float temperature;
+    @Value("${openai.api.key}")
+    private String apiKey;
 
 }
 

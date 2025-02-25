@@ -1,123 +1,132 @@
 package com.aminspire.domain.article.service;
 
-import java.net.URI;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.RequestEntity;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.HttpServerErrorException;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.client.UnknownHttpStatusCodeException;
-import org.springframework.web.util.UriComponentsBuilder;
-
 import com.aminspire.domain.article.domain.Article;
 import com.aminspire.domain.article.dto.response.ArticleInfoResponse;
 import com.aminspire.domain.article.repository.ArticleRepository;
+import com.aminspire.domain.user.domain.user.User;
+import com.aminspire.domain.user.repository.UserRepository;
 import com.aminspire.global.exception.CommonException;
-import com.aminspire.global.exception.errorcode.NaverApiErrorCode;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.aminspire.global.exception.errorcode.NaverErrorCode;
+import com.aminspire.global.exception.errorcode.ScrapErrorCode;
+import com.aminspire.global.security.jwt.JwtProvider;
+import com.aminspire.infra.aop.RedisStore;
+import com.aminspire.infra.config.feign.NaverFeignClient;
 
+import java.util.List;
+import java.util.Optional;
+
+import com.aminspire.infra.config.redis.RedisDbTypeKey;
+import com.aminspire.infra.config.redis.RedisStreamKey;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 @Slf4j
 public class ArticleServiceImpl implements ArticleService {
 
-	@Value("${NAVER_CLIENT_ID}")
-	private String clientId;
+    @Autowired private NaverFeignClient naverFeignClient;
+    @Autowired private ArticleRepository articleRepository;
+    @Autowired private UserRepository userRepository;
+    @Autowired JwtProvider jwtProvider;
 
-	@Value("${NAVER_CLIENT_SECRET}")
-	private String clientSecret;
 
-	@Autowired
-	private RestTemplate restTemplate;
-	
-	@Autowired
-	private ObjectMapper objectMapper;
+    // 기사 검색
+    public List<ArticleInfoResponse.ArticleInfoItems> searchArticles(String query) {
+        if (query == null || query.trim().isEmpty()) {
+            log.warn("잘못된 요청: 검색어가 비어 있음");
+            throw new CommonException(NaverErrorCode.NAVER_API_CLIENT_ERROR);
+        }
 
-	@Autowired
-	private ArticleRepository articleRepository;
+        try {
+            // FeignClient를 통해 네이버 뉴스 API 요청
+            ArticleInfoResponse response = naverFeignClient.searchArticles(query);
 
-	@Override
-	public List<ArticleInfoResponse.ArticleInfoItems> searchArticles(String query) {
+            List<ArticleInfoResponse.ArticleInfoItems> results = response.getItems();
 
-		String keyword = URLEncoder.encode(query, StandardCharsets.UTF_8);
+            if (results.isEmpty()) {
+                log.info("검색 결과 없음");
+                throw new CommonException(NaverErrorCode.NAVER_API_EMPTY_RESPONSE);
+            }
 
-		URI uri = UriComponentsBuilder.fromUriString("https://openapi.naver.com").path("/v1/search/news.json")
-				.queryParam("query", keyword).queryParam("display", 10).queryParam("start", 1).queryParam("sort", "sim")
-				.encode().build().toUri();
+            return results;
 
-		RequestEntity<Void> req = RequestEntity.get(uri).header("X-Naver-Client-Id", clientId)
-				.header("X-Naver-Client-Secret", clientSecret).build();
+        } catch (CommonException e) {
+            // 예상 가능한 예외 (검색 결과 없음 등)
+            log.warn("예상 가능한 예외 발생: {}", e.getMessage());
+            throw e; // 그대로 다시 던짐
 
-		try {
-			ResponseEntity<String> resp = restTemplate.exchange(req, String.class);
+        } catch (Exception e) {
+            // 예상하지 못한 예외
+            log.error("기사 검색 중 예기치 못한 오류 발생: {}", e.getMessage(), e);
+            throw new CommonException(NaverErrorCode.NAVER_API_UNKNOWN_ERROR);
+        }
+    }
 
-			if (resp.getStatusCode() != HttpStatus.OK) {
-				log.error("네이버 API 응답 오류: HTTP 상태 코드 {}", resp.getStatusCode());
-				throw new CommonException(NaverApiErrorCode.NAVER_API_UNKNOWN_ERROR);
-			}
+    // 특정 유저의 스크랩 중복 검증
+    @Override
+    public boolean existsByUserAndLink(User user, String link) {
+        return articleRepository.existsByUserAndLink(user, link);
+    }
 
-			if (Objects.isNull(resp.getBody()) || resp.getBody().isEmpty()) {
-				log.error("네이버 API 응답 바디가 비어 있음");
-				throw new CommonException(NaverApiErrorCode.NAVER_API_EMPTY_RESPONSE);
-			}
+    // 특정 유저의 스크랩 저장
+    @Transactional
+    @RedisStore(dbType = RedisDbTypeKey.KEYWORD_KEY, streamKey = RedisStreamKey.ARTICLE_STREAM_KEY)
+    public void saveArticle(User user, ArticleInfoResponse.ArticleInfoItems articleInfoItems) {
+        // 스크랩 중복 확인
+        if (existsByUserAndLink(user, articleInfoItems.getLink())) {
+            log.warn("중복 스크랩 시도: 유저 ID: {}, 기사 링크: {}", user.getId(), articleInfoItems.getLink());
+            throw new CommonException(ScrapErrorCode.SCRAP_DUPLICATE);
+        }
 
-			return objectMapper.readValue(resp.getBody(), ArticleInfoResponse.class).getItems();
+        // Article 객체로 변환
+        Article article = new Article();
+        article.setTitle(articleInfoItems.getTitle());
+        article.setLink(articleInfoItems.getLink());
+        article.setDescription(articleInfoItems.getDescription());
+        article.setPubDate(articleInfoItems.getPubDate());
+        article.setUser(user);
 
-		} catch (HttpClientErrorException e) {
-			log.error("클라이언트 오류 (4xx): {}", e.getMessage());
-			throw new CommonException(NaverApiErrorCode.NAVER_API_CLIENT_ERROR);
-		} catch (HttpServerErrorException e) {
-			log.error("서버 오류 (5xx): {}", e.getMessage());
-			throw new CommonException(NaverApiErrorCode.NAVER_API_SERVER_ERROR);
-		} catch (UnknownHttpStatusCodeException e) {
-			log.error("알 수 없는 HTTP 상태 코드 응답: {}", e.getMessage());
-			throw new CommonException(NaverApiErrorCode.NAVER_API_UNKNOWN_ERROR);
-		} catch (JsonProcessingException e) {
-			log.error("JSON 파싱 오류: {}", e.getMessage());
-			throw new CommonException(NaverApiErrorCode.NAVER_API_JSON_ERROR);
-		} catch (Exception e) {
-			log.error("예상치 못한 오류 발생: {}", e.getMessage());
-			throw new CommonException(NaverApiErrorCode.NAVER_API_UNKNOWN_ERROR);
-		}
-	}
+        try {
+            articleRepository.save(article);
+            log.info("기사 스크랩 성공: 유저 ID: {}, 기사 제목: {}", user.getId(), articleInfoItems.getTitle());
+        } catch (Exception e) {
+            log.error("기사 스크랩 실패: 유저 ID: {}, 오류: {}", user.getId(), e.getMessage(), e);
+            throw new CommonException(ScrapErrorCode.SCRAP_SAVE_FAILED);
+        }
+    }
 
-	@Override
-	public boolean existsByLinkAndUserId(Long userId, String link) {
-		return articleRepository.existsByUserIdAndLink(userId, link);
-	}
+    // 특정 유저의 스크랩 조회
+    @Transactional(readOnly = true)
+    public List<Article> getArticlesByUser(User user) {
+        // 해당 유저가 스크랩한 기사 조회
+        List<Article> articles = articleRepository.findByUser(user);
 
-	@Override
-	public void scrapArticle(Article article) {
-		articleRepository.save(article);
-	}
+        if (articles.isEmpty()) {
+            log.warn("유저 ID: {}의 스크랩된 기사가 없습니다.", user.getId());
+            throw new CommonException(ScrapErrorCode.SCRAP_NOT_FOUND); // 예외 던짐
+        }
 
-	@Override
-	public List<Article> getUserScraps(Long userId) {
-		return articleRepository.findByUserId(userId);
-	}
+        log.info("유저 ID: {}의 스크랩된 기사 조회 성공", user.getId());
+        return articles;
+    }
 
-	@Override
-	public void deleteScrap(Long userId, Long id) {
-		// 특정 유저의 스크랩된 기사만 삭제하도록 검증
-		Optional<Article> article = articleRepository.findByIdAndUserId(id, userId);
+    // 특정 유저의 스크랩 삭제
+    @Override
+    public void deleteScrap(User user, Long newsId) {
+        // 특정 유저의 스크랩된 기사만 삭제하도록 검증
+        Optional<Article> article = articleRepository.findByIdAndUser(newsId, user);
 
-		if (article.isPresent()) {
-			articleRepository.delete(article.get());
-		} else {
-			throw new IllegalArgumentException("해당 스크랩을 찾을 수 없습니다.");
-		}
-	}
+        if (article.isPresent()) {
+            articleRepository.delete(article.get());
+            log.info("기사 스크랩 삭제 성공: 유저 ID: {}, 기사 ID: {}", user.getId(), newsId);
+        } else {
+            log.warn("삭제 실패: 해당 스크랩을 찾을 수 없습니다. 유저 ID: {}, 기사 ID: {}", user.getId(), newsId);
+            throw new CommonException(ScrapErrorCode.SCRAP_NOT_FOUND);
+        }
+    }
 
 }

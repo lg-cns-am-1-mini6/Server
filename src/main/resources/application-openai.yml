@@ -3,15 +3,14 @@ openai:
     uri: "https://api.openai.com/v1/chat/completions"
     key: ${OPEN_AI_API_KEY}
   prompts:
-    keyword-extraction: """
-    다음 텍스트에서 핵심 키워드를 5개 추출하여 JSON 형식으로 반환해줘.
-    반드시 다음 JSON 형식을 따라야 해:
-    
-    {
-      \"keywords\": [\"키워드1\", \"키워드2\", \"키워드3\", \"키워드4\", \"키워드5\"]
-    }
-    텍스트:
-    """
+    keyword-extraction: |
+      다음 텍스트에서 핵심 키워드를 5개 추출하여 JSON 형식으로 반환해줘.
+      반드시 다음 JSON 형식을 따라야 해:
+      {
+        \"keywords\": [\"키워드1\", \"키워드2\", \"키워드3\", \"키워드4\", \"키워드5\"]
+      }
+      텍스트:
+
     role: "너는 한국어 텍스트에서 주요 키워드를 추출하는 도우미야."
     max-tokens: 100
     temperature: 0.5
