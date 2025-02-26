@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class OpenAiPromptProperties {
     @Value("${openai.api.uri}")
-    private String openAiUrl;
+    private String apiUrl;
     @Value("${openai.prompts.keyword-extraction}")
     private String keywordExtractionPrompt;
     @Value("${openai.prompts.role}")
