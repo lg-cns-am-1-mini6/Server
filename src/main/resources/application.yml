@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: "docker"
+    active: "dockers"
     group:
       test: "test"
       local: "local"

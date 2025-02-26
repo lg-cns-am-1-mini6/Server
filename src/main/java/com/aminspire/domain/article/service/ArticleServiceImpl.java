@@ -82,7 +82,7 @@ public class ArticleServiceImpl implements ArticleService {
         Article article = new Article();
         article.setTitle(articleInfoItems.getTitle());
         article.setLink(articleInfoItems.getLink());
-        article.setDescription(articleInfoItems.getDescription());
+        article.setDescription(HtmlCleaner.cleanHtml(articleInfoItems.getDescription()));
         article.setPubDate(articleInfoItems.getPubDate());
         article.setUser(user);
 
