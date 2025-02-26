@@ -4,5 +4,5 @@ import com.aminspire.domain.tag.domain.Tag;
 
 import java.util.List;
 
-public record TagInfoResponse(Tag tag) {
+public record TagListInfoResponse(List<Tag> tagList) {
 }

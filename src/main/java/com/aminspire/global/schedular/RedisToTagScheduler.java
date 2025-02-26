@@ -66,12 +66,12 @@ public class RedisToTagScheduler {
                 if (existingTag.isPresent()) {
                     // ✅ 이미 존재하는 경우 -> `score` 증가
                     Tag tag = existingTag.get();
-                    tag.increaseScore();
+                    tag.increaseSearchCount();
                     tagRepository.save(tag);
                     log.info("[Scheduler] 기존 키워드 '{}'의 score 증가 (userId={})", keyword, userEmail);
                 } else {
                     // ✅ 새로운 키워드 -> DB에 저장
-                    Tag newTag = new Tag(keyword, user, 1);
+                    Tag newTag = Tag.createTag(keyword, user);
                     tagRepository.save(newTag);
                     log.info("[Scheduler] 새로운 키워드 '{}' 추가 (userId={})", keyword, userEmail);
                 }

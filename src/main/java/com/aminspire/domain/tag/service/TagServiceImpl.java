@@ -3,6 +3,7 @@ package com.aminspire.domain.tag.service;
 import com.aminspire.domain.tag.domain.Tag;
 import com.aminspire.domain.tag.dto.request.TagCreateRequest;
 import com.aminspire.domain.tag.dto.response.TagInfoResponse;
+import com.aminspire.domain.tag.dto.response.TagListInfoResponse;
 import com.aminspire.domain.tag.repository.TagRepository;
 import com.aminspire.domain.user.domain.user.User;
 import com.aminspire.domain.user.repository.UserRepository;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.text.Normalizer;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,16 +29,17 @@ public class TagServiceImpl implements TagService {
 
     private final TagRepository tagRepository;
     private final UserRepository userRepository;
+    private static final int TOP_N_TAGS = 5;
 
     //사용자 태그 추가
     @Override
     @Transactional
-    public void addTagByUser(TagCreateRequest request, AuthDetails authDetails) {
+    public TagInfoResponse addTagByUser(TagCreateRequest request, AuthDetails authDetails) {
         User user = getUserFromAuthDetails(authDetails);
         String keyword = normalizeKeyword(request.keyword());
         if(!isTagExists(keyword, user)){
             Tag tag = Tag.createTag(keyword, user);
-            tagRepository.save(tag);
+            return new TagInfoResponse(tagRepository.save(tag));
         }else{
             throw new CommonException(TagErrorCode.TAG_ALREADY_EXISTS);
         }
@@ -54,22 +57,28 @@ public class TagServiceImpl implements TagService {
             Tag newTag = Tag.createTag(keyword, user);
             tagRepository.save(newTag);
         }else{
-            tag.get().increaseScore();
+            tag.get().increaseSearchCount();
         }
 
     }
 
     //
     @Override
-    public TagInfoResponse getTags(AuthDetails authDetails) {
+    public TagListInfoResponse getTags(AuthDetails authDetails) {
         User user = getUserFromAuthDetails(authDetails);
-        return new TagInfoResponse(tagRepository.findAllBySearcher(user));
+        return new TagListInfoResponse(tagRepository.findAllBySearcher(user));
     }
 
     //키워드 기사 조회용
     @Override
     public List<Tag> getUserPreferTags(User user) {
-        return null;
+        List<Tag> tags = tagRepository.findAllBySearcher(user); // ✅ 해당 유저의 모든 태그 가져오기
+
+        // ✅ 점수 기준으로 정렬 후 상위 N개 선택
+        return tags.stream()
+                .sorted(Comparator.comparingDouble(Tag::calculateScore).reversed()) // 점수 높은 순
+                .limit(TOP_N_TAGS) // 상위 N개만
+                .toList();
     }
 
     @Override

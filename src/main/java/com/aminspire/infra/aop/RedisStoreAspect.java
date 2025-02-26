@@ -37,10 +37,8 @@ public class RedisStoreAspect {
 
         log.info("[AOP] RedisStore 실행: dbType={}, streamKey={}", dbType, streamKey);
 
-        // ✅ Scrap 저장 (ARTICLE Stream)
-        if (streamKey.equals("ARTICLE") && args.length >= 2 && args[0] instanceof User && args[1] instanceof ArticleInfoResponse.ArticleInfoItems) {
-            User user = (User) args[0];
-            ArticleInfoResponse.ArticleInfoItems articleInfoItems = (ArticleInfoResponse.ArticleInfoItems) args[1];
+        if (streamKey.equals("ARTICLE") && args.length >= 2 && args[0] instanceof User && args[1] instanceof ArticleInfoResponse.ArticleInfoItems articleInfoItems) {
+            //User user = (User) args[0];
 
             Map<String, Object> articleEvent = Map.of(
                     "articleId", articleInfoItems.getLink(),
@@ -53,7 +51,7 @@ public class RedisStoreAspect {
             redisClient.addToStream(dbType, streamKey, articleEvent, EXPIRATION_TTL);
             log.info("[AOP] ARTICLE 스크랩 저장: {}", articleEvent);
         }
-        // ✅ 검색 키워드 저장 (SEARCH Stream)
+
         else if (streamKey.equals("SEARCH") && args.length > 0) {
             String keyword = args[0].toString();
 

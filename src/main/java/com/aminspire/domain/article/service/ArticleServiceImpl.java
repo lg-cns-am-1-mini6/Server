@@ -31,8 +31,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class ArticleServiceImpl implements ArticleService {
 
-    @Autowired private NaverFeignClient naverFeignClient;
-    @Autowired private ArticleRepository articleRepository;
+    private final NaverFeignClient naverFeignClient;
+    private final ArticleRepository articleRepository;
 
     // 기사 검색
     public List<ArticleInfoResponse.ArticleInfoItems> searchArticles(String query) {
