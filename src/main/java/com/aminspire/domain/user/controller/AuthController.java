@@ -2,8 +2,8 @@ package com.aminspire.domain.user.controller;
 
 import com.aminspire.domain.user.dto.response.LoginResponse;
 import com.aminspire.domain.user.dto.response.TokenResponse;
-import com.aminspire.domain.user.service.AuthService;
-import com.aminspire.domain.user.service.SocialLoginService;
+import com.aminspire.domain.user.service.auth.AuthService;
+import com.aminspire.domain.user.service.sociallogin.SocialLoginService;
 import com.aminspire.global.security.AuthDetails;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

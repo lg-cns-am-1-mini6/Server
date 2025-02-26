@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: "local"
+    active: "docker"
     group:
       test: "test"
       local: "local"
@@ -10,3 +10,4 @@ spring:
       - security
       - openai
       - feign
+      - s3

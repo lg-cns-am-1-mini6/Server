@@ -13,6 +13,7 @@ import com.aminspire.global.security.AuthDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.text.Normalizer;
 import java.util.List;
@@ -21,6 +22,7 @@ import java.util.Optional;
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class TagServiceImpl implements TagService {
 
     private final TagRepository tagRepository;
@@ -28,6 +30,7 @@ public class TagServiceImpl implements TagService {
 
     //사용자 태그 추가
     @Override
+    @Transactional
     public void addTagByUser(TagCreateRequest request, AuthDetails authDetails) {
         User user = getUserFromAuthDetails(authDetails);
         String keyword = normalizeKeyword(request.keyword());
@@ -42,6 +45,7 @@ public class TagServiceImpl implements TagService {
 
     //AI 추출 태그 추가
     @Override
+    @Transactional
     public void addTagByOpenAi(TagCreateRequest request, AuthDetails authDetails) {
         User user = getUserFromAuthDetails(authDetails);
         String keyword = normalizeKeyword(request.keyword());
@@ -69,6 +73,7 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
+    @Transactional
     public void deleteTag(Long tagId, AuthDetails authDetails) throws CommonException {
         if(isTagExists(tagId)){
             Tag tag = getTagById(tagId);

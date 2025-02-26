@@ -81,7 +81,7 @@ public class JwtProvider {
                         .toString()); // Refresh 토큰: 쿠키에 저장
         log.info("accessToken: "+accessToken);
         log.info("refreshToken: "+refreshToken);
-        redisClient.setValue(RedisDbTypeKey.TOKEN_KEY.name(), user.getEmail(), refreshToken, 1000 * 60 * 60 * 24 * 7L); // Redis에 저장
+        redisClient.setValue(RedisDbTypeKey.TOKEN_KEY.getKey(), user.getEmail(), refreshToken, 1000 * 60 * 60 * 24 * 7L); // Redis에 저장
     }
 
     // 엑세스 토큰 및 리프레시 토큰 재발급
@@ -95,7 +95,7 @@ public class JwtProvider {
         refreshToken = recreateRefreshToken(email, role);
         response.addHeader(HttpHeaders.SET_COOKIE, createResponseCookie("refreshToken", refreshToken).toString());
 
-        redisClient.setValue(RedisDbTypeKey.TOKEN_KEY.name(), email, refreshToken, 1000 * 60 * 60 * 24 * 7L); // Redis 값 덮어쓰기
+        redisClient.setValue(RedisDbTypeKey.TOKEN_KEY.getKey(), email, refreshToken, 1000 * 60 * 60 * 24 * 7L); // Redis 값 덮어쓰기
     }
 
     public String recreateAccessToken(String email, String role) {
@@ -128,7 +128,7 @@ public class JwtProvider {
                 .secure(true)
                 .path("/")
                 .httpOnly(true)
-                .sameSite("Strict")
+                .sameSite("None")
                 .build();
     }
 
@@ -137,7 +137,7 @@ public class JwtProvider {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
 
-            if (Objects.equals(tokenType, "refresh") && redisClient.checkExistsValue(RedisDbTypeKey.TOKEN_KEY.name(),token)) {
+            if (Objects.equals(tokenType, "refresh") && redisClient.checkExistsValue(RedisDbTypeKey.TOKEN_KEY.getKey(),token)) {
                 return false;
             }
 
@@ -174,7 +174,7 @@ public class JwtProvider {
             throw new CommonException(JwtErrorCode.REFRESH_TOKEN_INVALID);
         }
 
-        redisClient.deleteValue(RedisDbTypeKey.TOKEN_KEY.name(),getEmail(accessToken)); // Redis에서 리프레시 토큰 제거
+        redisClient.deleteValue(RedisDbTypeKey.TOKEN_KEY.getKey(),getEmail(accessToken)); // Redis에서 리프레시 토큰 제거
 
         // 쿠키 제거
         ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", null)

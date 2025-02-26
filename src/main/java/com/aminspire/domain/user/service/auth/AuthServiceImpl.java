@@ -1,4 +1,4 @@
-package com.aminspire.domain.user.service;
+package com.aminspire.domain.user.service.auth;
 
 import com.aminspire.domain.user.domain.user.User;
 import com.aminspire.domain.user.dto.response.TokenResponse;
@@ -34,7 +34,7 @@ public class AuthServiceImpl implements AuthService {
         }
 
         String email = jwtProvider.getEmail(refreshToken);
-        String redisRefreshToken = redisClient.getValue(RedisDbTypeKey.TOKEN_KEY.name(),email);
+        String redisRefreshToken = redisClient.getValue(RedisDbTypeKey.TOKEN_KEY.getKey(),email);
 
         // 요청에서 가져온 리프레시 토큰, 레디스에 저장된 리프레시 토큰 비교
         if (StringUtils.isEmpty(refreshToken) || StringUtils.isEmpty(redisRefreshToken) || !redisRefreshToken.equals(refreshToken)) {

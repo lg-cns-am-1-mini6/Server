@@ -5,11 +5,13 @@ import com.aminspire.global.security.exception.CustomAuthenticationEntryPoint;
 import com.aminspire.global.security.exception.ExceptionFilter;
 import com.aminspire.global.security.jwt.JwtFilter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
@@ -18,8 +20,10 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.Collections;
 import java.util.List;
 
+@Slf4j
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -37,7 +41,7 @@ public class SecurityConfig {
         http.sessionManagement(
                 (session) ->
                         session.sessionCreationPolicy(
-                                SessionCreationPolicy.STATELESS)); // Session 미사용
+                                SessionCreationPolicy.STATELESS));
         http.httpBasic(AbstractHttpConfigurer::disable).formLogin(AbstractHttpConfigurer::disable);
 
         http.exceptionHandling((exceptionHandling) ->
@@ -47,8 +51,9 @@ public class SecurityConfig {
         ); // 에러 핸들러 등록
 
         http.authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers( "/api-docs/**", "/swagger-ui/**", "/swagger-ui.html/**", "/v3/api-docs/**", "/swagger-ui/index.html#/**").permitAll()
                         .requestMatchers("/auth/google/sign-in", "auth/kakao/sign-in", "/auth/reissue").permitAll()
+                        .requestMatchers("/articles/search").permitAll()
+                        .requestMatchers("/auth/sign-out", "/auth/cancel", "/user/**").authenticated()
                         .anyRequest().permitAll()) // 인가 경로 설정
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(exceptionFilter, JwtFilter.class); // JwtFilter 내부 예외 처리 필터 등록
@@ -60,13 +65,15 @@ public class SecurityConfig {
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.setAllowedOrigins(List.of("http://localhost:3000", "http://localhost:5173"));
+        config.setAllowedOrigins(List.of("http://localhost:3000", "http://localhost:5173", "https://newjeans.site"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setExposedHeaders(List.of("*"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
+
+        config.setExposedHeaders(Collections.singletonList("Set-Cookie"));
         return source;
     }
 }

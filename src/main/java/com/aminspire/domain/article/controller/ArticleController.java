@@ -3,7 +3,6 @@ package com.aminspire.domain.article.controller;
 import com.aminspire.domain.article.domain.Article;
 import com.aminspire.domain.article.dto.response.ArticleInfoResponse;
 import com.aminspire.domain.article.service.ArticleService;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +36,24 @@ public class ArticleController {
         return CommonResponse.onSuccess(HttpStatus.OK.value(), results); // 200 OK
     }
 
+/*
+    // 키워드 기사 검색
+    @GetMapping("/key-search")
+    public CommonResponse<?> searchArticles(@AuthenticationPrincipal AuthDetails authDetails) {
+        List<Map<String, Object>> results = new ArrayList<>();
+
+        List<String> queries = ; //키워드 DB 메서드 연결
+        User user = authDetails.user();
+
+        // 각 query에 대해 searchArticles 호출
+        for (String query : queries) {
+            List<ArticleInfoResponse.ArticleInfoItems> resultForQuery = articleService.searchArticles(query);
+            results.add(Map.of(query, resultForQuery));  // query와 그에 해당하는 결과를 묶어서 추가
+        }
+
+        return CommonResponse.onSuccess(HttpStatus.OK.value(), results); // 200 OK
+    }
+*/
     // 특정 유저의 스크랩 저장
     @PostMapping("/scrap")
     public CommonResponse<Map<String, String>> scrapArticle(
@@ -69,7 +86,6 @@ public class ArticleController {
             @RequestParam Long newsId) {
         Map<String, String> result = new HashMap<>();
         User user = authDetails.user();
-
         articleService.deleteScrap(user, newsId);
         result.put("message", "기사 스크랩 삭제 성공!");
         return CommonResponse.onSuccess(HttpStatus.OK.value(), result); // 200 OK

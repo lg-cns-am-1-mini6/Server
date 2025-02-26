@@ -2,6 +2,7 @@ package com.aminspire.infra.config.redis;
 
 import com.aminspire.global.exception.CommonException;
 import com.aminspire.global.exception.errorcode.RedisErrorCode;
+import java.time.Duration;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.connection.stream.*;
@@ -79,23 +80,6 @@ public class RedisClient {
             throw new CommonException(RedisErrorCode.REDIS_ERROR);
         }
     }
-
-//    /**
-//     * ✅ Redis Stream에 데이터 추가
-//     */
-//    public String addToStream(String redisDb, String streamKey, Map<String, Object> data) {
-//        try {
-//            RedisTemplate<String, Object> redisTemplate = getRedisTemplate(redisDb);
-//            String recordId = redisTemplate.opsForStream()
-//                    .add(StreamRecords.newRecord().ofMap(data).withStreamKey(streamKey))
-//                    .getValue();
-//            log.info("[Redis] STREAM ADD [{}] stream={} data={} recordId={}", redisDb, streamKey, data, recordId);
-//            return recordId;
-//        } catch (Exception e) {
-//            log.error("[Redis] STREAM ADD Error: {}", e.getMessage(), e);
-//            throw new CommonException(RedisErrorCode.REDIS_ERROR);
-//        }
-//    }
 
     public String addToStream(String redisDb, String streamKey, Map<String, Object> data, long ttlMillis) {
         try {

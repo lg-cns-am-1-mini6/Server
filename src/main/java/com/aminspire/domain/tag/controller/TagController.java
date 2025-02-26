@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/keyword")
+@RequestMapping("/keywords")
 public class TagController {
 
     private final TagService tagService;

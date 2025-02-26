@@ -10,11 +10,14 @@ import com.aminspire.global.exception.errorcode.NaverErrorCode;
 import com.aminspire.global.exception.errorcode.ScrapErrorCode;
 import com.aminspire.global.security.jwt.JwtProvider;
 import com.aminspire.infra.aop.RedisStore;
+import com.aminspire.global.exception.CommonException;
+import com.aminspire.global.exception.errorcode.NaverErrorCode;
+import com.aminspire.global.exception.errorcode.ScrapErrorCode;
+import com.aminspire.global.utils.HtmlCleaner;
 import com.aminspire.infra.config.feign.NaverFeignClient;
 
 import java.util.List;
 import java.util.Optional;
-
 import com.aminspire.infra.config.redis.RedisDbTypeKey;
 import com.aminspire.infra.config.redis.RedisStreamKey;
 import lombok.RequiredArgsConstructor;
@@ -30,9 +33,6 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Autowired private NaverFeignClient naverFeignClient;
     @Autowired private ArticleRepository articleRepository;
-    @Autowired private UserRepository userRepository;
-    @Autowired JwtProvider jwtProvider;
-
 
     // 기사 검색
     public List<ArticleInfoResponse.ArticleInfoItems> searchArticles(String query) {
@@ -40,6 +40,7 @@ public class ArticleServiceImpl implements ArticleService {
             log.warn("잘못된 요청: 검색어가 비어 있음");
             throw new CommonException(NaverErrorCode.NAVER_API_CLIENT_ERROR);
         }
+        log.info("query: " + query);
 
         try {
             // FeignClient를 통해 네이버 뉴스 API 요청
@@ -52,6 +53,8 @@ public class ArticleServiceImpl implements ArticleService {
                 throw new CommonException(NaverErrorCode.NAVER_API_EMPTY_RESPONSE);
             }
 
+            // HTML 태그 정리 적용
+            results.forEach(HtmlCleaner::cleanObjectHtml);
             return results;
 
         } catch (CommonException e) {
@@ -86,7 +89,7 @@ public class ArticleServiceImpl implements ArticleService {
         Article article = new Article();
         article.setTitle(articleInfoItems.getTitle());
         article.setLink(articleInfoItems.getLink());
-        article.setDescription(articleInfoItems.getDescription());
+        article.setDescription(HtmlCleaner.cleanHtml(articleInfoItems.getDescription()));
         article.setPubDate(articleInfoItems.getPubDate());
         article.setUser(user);
 
