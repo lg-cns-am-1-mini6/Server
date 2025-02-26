@@ -84,12 +84,12 @@ public class ArticleProcessScheduler {
                     if (existingTag.isPresent()) {
                         // ✅ 기존 키워드 존재하면 score 증가
                         Tag tag = existingTag.get();
-                        tag.increaseScore();
+                        tag.increaseSearchCount();
                         tagRepository.save(tag);
                         log.info("[Scheduler] 기존 키워드 '{}'의 score 증가 (userEmail={})", keyword, userEmail);
                     } else {
                         // ✅ 새로운 키워드 저장
-                        Tag newTag = new Tag(keyword, user, 1);
+                        Tag newTag = Tag.createTag(keyword, user);
                         tagRepository.save(newTag);
                         log.info("[Scheduler] 새로운 키워드 '{}' 추가 (userEmail={})", keyword, userEmail);
                     }
