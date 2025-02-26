@@ -41,7 +41,7 @@ public class HtmlCleaner {
         }
     }
 
-    private static String cleanHtml(String html) {
+    public static String cleanHtml(String html) {
         if (html == null) {
             return null;
         }
