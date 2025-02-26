@@ -5,6 +5,7 @@ import com.aminspire.global.exception.CommonException;
 import com.aminspire.global.exception.errorcode.JwtErrorCode;
 import com.aminspire.global.security.jwt.JwtFilter.TokenInValidateException;
 import com.aminspire.infra.config.redis.RedisClient;
+import com.aminspire.infra.config.redis.RedisDbTypeKey;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -16,6 +17,7 @@ import java.security.Key;
 import java.util.Date;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
@@ -24,6 +26,7 @@ import org.springframework.util.StringUtils;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class JwtProvider {
 
     @Value("${jwt.secret}")
@@ -76,8 +79,9 @@ public class JwtProvider {
                 HttpHeaders.SET_COOKIE,
                 createResponseCookie("refreshToken", refreshToken)
                         .toString()); // Refresh 토큰: 쿠키에 저장
-
-        redisClient.setValue(user.getEmail(), refreshToken, 1000 * 60 * 60 * 24 * 7L); // Redis에 저장
+        log.info("accessToken: "+accessToken);
+        log.info("refreshToken: "+refreshToken);
+        redisClient.setValue(RedisDbTypeKey.TOKEN_KEY.getKey(), user.getEmail(), refreshToken, 1000 * 60 * 60 * 24 * 7L); // Redis에 저장
     }
 
     // 엑세스 토큰 및 리프레시 토큰 재발급
@@ -91,7 +95,7 @@ public class JwtProvider {
         refreshToken = recreateRefreshToken(email, role);
         response.addHeader(HttpHeaders.SET_COOKIE, createResponseCookie("refreshToken", refreshToken).toString());
 
-        redisClient.setValue(email, refreshToken, 1000 * 60 * 60 * 24 * 7L); // Redis 값 덮어쓰기
+        redisClient.setValue(RedisDbTypeKey.TOKEN_KEY.getKey(), email, refreshToken, 1000 * 60 * 60 * 24 * 7L); // Redis 값 덮어쓰기
     }
 
     public String recreateAccessToken(String email, String role) {
@@ -133,7 +137,7 @@ public class JwtProvider {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
 
-            if (Objects.equals(tokenType, "refresh") && redisClient.checkExistsValue(token)) {
+            if (Objects.equals(tokenType, "refresh") && redisClient.checkExistsValue(RedisDbTypeKey.TOKEN_KEY.getKey(),token)) {
                 return false;
             }
 
@@ -170,7 +174,7 @@ public class JwtProvider {
             throw new CommonException(JwtErrorCode.REFRESH_TOKEN_INVALID);
         }
 
-        redisClient.deleteValue(getEmail(accessToken)); // Redis에서 리프레시 토큰 제거
+        redisClient.deleteValue(RedisDbTypeKey.TOKEN_KEY.getKey(),getEmail(accessToken)); // Redis에서 리프레시 토큰 제거
 
         // 쿠키 제거
         ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", null)

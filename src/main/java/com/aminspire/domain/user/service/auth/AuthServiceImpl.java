@@ -7,6 +7,7 @@ import com.aminspire.global.exception.CommonException;
 import com.aminspire.global.exception.errorcode.JwtErrorCode;
 import com.aminspire.global.security.jwt.JwtProvider;
 import com.aminspire.infra.config.redis.RedisClient;
+import com.aminspire.infra.config.redis.RedisDbTypeKey;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
@@ -33,7 +34,7 @@ public class AuthServiceImpl implements AuthService {
         }
 
         String email = jwtProvider.getEmail(refreshToken);
-        String redisRefreshToken = redisClient.getValue(email);
+        String redisRefreshToken = redisClient.getValue(RedisDbTypeKey.TOKEN_KEY.getKey(),email);
 
         // 요청에서 가져온 리프레시 토큰, 레디스에 저장된 리프레시 토큰 비교
         if (StringUtils.isEmpty(refreshToken) || StringUtils.isEmpty(redisRefreshToken) || !redisRefreshToken.equals(refreshToken)) {

@@ -1,9 +1,25 @@
+#spring:
+#  config:
+#    activate:
+#      on-profile: "redis"
+#  data:
+#    redis:
+#      host: ${REDIS_HOST:localhost}
+#      token:
+#        port: ${TOKEN_REDIS_PORT:6379}
+#        password: ${REDIS_PASSWORD:}
+#      keyword:
+#        port: ${REDIS_PORT:6380}
+#        password: ${TOKEN_REDIS_PASSWORD:}
 spring:
   config:
     activate:
       on-profile: "redis"
   data:
     redis:
-      host: ${REDIS_HOST:localhost}
-      port: ${REDIS_PORT:6379}
-      password: ${REDIS_PASSWORD:}
+      host: ${REDIS_HOST:localhost}  # Redis 호스트
+      port: ${REDIS_PORT:6379}        # 기본 포트 (Standalone 용)
+      password: ${REDIS_PASSWORD:}    # Redis 비밀번호 (필요하면 설정)
+      db:
+        token: 0  # 0번 DB (토큰 저장용)
+        keyword: 1 # 1번 DB (키워드 저장용)

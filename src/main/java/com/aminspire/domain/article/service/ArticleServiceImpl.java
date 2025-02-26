@@ -4,6 +4,12 @@ import com.aminspire.domain.article.domain.Article;
 import com.aminspire.domain.article.dto.response.ArticleInfoResponse;
 import com.aminspire.domain.article.repository.ArticleRepository;
 import com.aminspire.domain.user.domain.user.User;
+import com.aminspire.domain.user.repository.UserRepository;
+import com.aminspire.global.exception.CommonException;
+import com.aminspire.global.exception.errorcode.NaverErrorCode;
+import com.aminspire.global.exception.errorcode.ScrapErrorCode;
+import com.aminspire.global.security.jwt.JwtProvider;
+import com.aminspire.infra.aop.RedisStore;
 import com.aminspire.global.exception.CommonException;
 import com.aminspire.global.exception.errorcode.NaverErrorCode;
 import com.aminspire.global.exception.errorcode.ScrapErrorCode;
@@ -12,7 +18,8 @@ import com.aminspire.infra.config.feign.NaverFeignClient;
 
 import java.util.List;
 import java.util.Optional;
-
+import com.aminspire.infra.config.redis.RedisDbTypeKey;
+import com.aminspire.infra.config.redis.RedisStreamKey;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,7 +55,6 @@ public class ArticleServiceImpl implements ArticleService {
 
             // HTML 태그 정리 적용
             results.forEach(HtmlCleaner::cleanObjectHtml);
-
             return results;
 
         } catch (CommonException e) {
@@ -71,6 +77,7 @@ public class ArticleServiceImpl implements ArticleService {
 
     // 특정 유저의 스크랩 저장
     @Transactional
+    @RedisStore(dbType = RedisDbTypeKey.KEYWORD_KEY, streamKey = RedisStreamKey.ARTICLE_STREAM_KEY)
     public void saveArticle(User user, ArticleInfoResponse.ArticleInfoItems articleInfoItems) {
         // 스크랩 중복 확인
         if (existsByUserAndLink(user, articleInfoItems.getLink())) {

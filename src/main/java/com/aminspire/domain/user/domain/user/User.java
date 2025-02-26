@@ -48,7 +48,6 @@ public class User extends BaseTimeEntity {
         this.loginType = loginType;
         this.imageUrl = imageUrl;
     }
-
     public void updateName(String name) {
         this.name = name;
     }

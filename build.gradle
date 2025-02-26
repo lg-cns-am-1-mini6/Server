@@ -76,7 +76,7 @@ dependencies {
     //JSON processing
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
     implementation 'org.jsoup:jsoup:1.18.3'
-    
+
 }
 
 tasks.named('test') {

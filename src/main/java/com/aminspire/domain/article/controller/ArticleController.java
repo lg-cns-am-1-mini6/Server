@@ -3,8 +3,6 @@ package com.aminspire.domain.article.controller;
 import com.aminspire.domain.article.domain.Article;
 import com.aminspire.domain.article.dto.response.ArticleInfoResponse;
 import com.aminspire.domain.article.service.ArticleService;
-
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +11,9 @@ import com.aminspire.domain.user.controller.UserController;
 import com.aminspire.domain.user.domain.user.User;
 import com.aminspire.global.common.response.CommonResponse;
 import com.aminspire.global.security.AuthDetails;
+import com.aminspire.infra.aop.RedisStore;
+import com.aminspire.infra.config.redis.RedisDbTypeKey;
+import com.aminspire.infra.config.redis.RedisStreamKey;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
+@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:5173", "http://localhost:8080"})
 @RequestMapping("/articles")
 public class ArticleController {
     @Autowired private ArticleService articleService;
@@ -28,10 +30,12 @@ public class ArticleController {
 
     // 기사 검색
     @GetMapping("/search")
+    @RedisStore(dbType = RedisDbTypeKey.KEYWORD_KEY, streamKey = RedisStreamKey.SEARCH_STREAM_KEY)
     public CommonResponse<?> searchArticles(@RequestParam(value = "query", required = true) String query) {
         List<ArticleInfoResponse.ArticleInfoItems> results = articleService.searchArticles(query);
         return CommonResponse.onSuccess(HttpStatus.OK.value(), results); // 200 OK
     }
+
 /*
     // 키워드 기사 검색
     @GetMapping("/key-search")
@@ -82,7 +86,6 @@ public class ArticleController {
             @RequestParam Long newsId) {
         Map<String, String> result = new HashMap<>();
         User user = authDetails.user();
-
         articleService.deleteScrap(user, newsId);
         result.put("message", "기사 스크랩 삭제 성공!");
         return CommonResponse.onSuccess(HttpStatus.OK.value(), result); // 200 OK

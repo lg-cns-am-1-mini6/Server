@@ -101,7 +101,6 @@ public class SocialLoginServiceImpl implements SocialLoginService {
         return LoginResponse.of("카카오 로그인 성공");
     }
 
-    @Transactional
     protected User createUser(String email, LoginType loginType) {
 
         List<String> names = List.of("민지", "하니", "다니엘", "해린", "혜인");
